@@ -7,6 +7,7 @@ use Picqer\Barcode\BarcodeGeneratorPNG;
 $customerName = "นาย สมชาย ใจดี";
 $address = "123 หมู่ 1 ต. บ้านใหม่ อ. เมือง จ. สมุทรปราการ 10280";
 $rentalAmount = 5000;
+$shopName = "ร้านค้า สมชาย";
 
 $mpdf = new \Mpdf\Mpdf(['fontDir' => '../fonts/', 'fontdata' => [
     'thsarabun' => [
@@ -75,18 +76,26 @@ $html = '
             margin-top: 10px;
             font-size: 14px;
         }
+        .logo {
+            text-align: center;
+        }
+       .logo > img {
+            width: 50px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="../images/logo.png" alt="Logo">
-            <h2>ใบเสร็จค่าเช่าร้านค้ารายเดือน</h2>
+            <div class="logo">
+                <img style="width: 70px" src="https://i.imgur.com/gzvkzoJ.png" alt="Logo">
+            </div>
+            <h2>ใบแจ้งชำระค่าเช่าร้านค้ารายเดือน</h2>
         </div>
         <div class="invoice-details">
-            <p><strong>วันที่:</strong> ' . date('Y-m-d') . '</p>
+            <p><strong>วันที่:</strong> ' . date('d/m/Y') . '</p>
             <p><strong>ชื่อลูกค้า:</strong> ' . $customerName . '</p>
-            <p><strong>ที่อยู่:</strong> ' . $address . '</p>
+            <p><strong>ชื่อร้าน:</strong> ' . $shopName . '</p>
         </div>
         <table>
             <tr>
@@ -99,12 +108,10 @@ $html = '
             </tr>
         </table>
         <p class="total"><strong>รวมทั้งสิ้น: ' . number_format($rentalAmount, 2) . ' บาท</strong></p>
-        <div class="barcode">
-            <!-- แสดงรูปบาร์โค้ด -->
+        <!-- <div class="barcode">
             <img src="data:image/png;base64,' . base64_encode($barcodeImage) . '" alt="Barcode">
-            <!-- แสดงเลขใต้บาร์โค้ด -->
             <p class="barcode-number">Barcode Number: ' . $barcodeData . '</p>
-        </div>
+        </div> -->
     </div>
 </body>
 </html>
@@ -116,4 +123,4 @@ $mpdf->WriteHTML($html);
 $pdfFileName = 'invoice_' . uniqid() . '.pdf';
 
 // ส่งคำขอดาวน์โหลด PDF ไปยังเบราว์เซอร์
-$mpdf->Output($pdfFileName, 'D');
+$mpdf->Output($pdfFileName, 'I');
