@@ -1,5 +1,6 @@
 <?php
 require '../vendor/autoload.php';
+
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
 // รับข้อมูลจาก JavaScript
@@ -7,7 +8,14 @@ $customerName = "นาย สมชาย ใจดี";
 $address = "123 หมู่ 1 ต. บ้านใหม่ อ. เมือง จ. สมุทรปราการ 10280";
 $rentalAmount = 5000;
 
-$mpdf = new \Mpdf\Mpdf();
+$mpdf = new \Mpdf\Mpdf(['fontDir' => '../fonts/', 'fontdata' => [
+    'thsarabun' => [
+        'R' => 'THSarabun.ttf',
+        'B' => 'THSarabun Bold.ttf',
+        'I' => 'THSarabun Italic.ttf',
+        'BI' => 'THSarabun BoldItalic.ttf'
+    ]
+], 'default_font' => 'thsarabun']);
 
 // สร้างรหัสบาร์โค้ด
 $generator = new BarcodeGeneratorPNG();
@@ -63,11 +71,16 @@ $html = '
         .barcode img {
             width: 150px;
         }
+        .barcode-number {
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <img src="../images/logo.png" alt="Logo">
             <h2>ใบเสร็จค่าเช่าร้านค้ารายเดือน</h2>
         </div>
         <div class="invoice-details">
@@ -89,10 +102,8 @@ $html = '
         <div class="barcode">
             <!-- แสดงรูปบาร์โค้ด -->
             <img src="data:image/png;base64,' . base64_encode($barcodeImage) . '" alt="Barcode">
-        </div>
-        <div class="signature">
-            <img src="path/to/signature.png" alt="ลายเซ็น">
-            <p>ลายเซ็น .......................................</p>
+            <!-- แสดงเลขใต้บาร์โค้ด -->
+            <p class="barcode-number">Barcode Number: ' . $barcodeData . '</p>
         </div>
     </div>
 </body>
@@ -106,4 +117,3 @@ $pdfFileName = 'invoice_' . uniqid() . '.pdf';
 
 // ส่งคำขอดาวน์โหลด PDF ไปยังเบราว์เซอร์
 $mpdf->Output($pdfFileName, 'D');
-?>
