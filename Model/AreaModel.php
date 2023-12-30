@@ -14,7 +14,7 @@ class AreaModel
         $sql = "SELECT * FROM areas ORDER BY area_name ASC";
         $stmt = $this->db->connect()->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAreaById($id)
@@ -438,4 +438,15 @@ class AreaModel
             return false;
         }
     }
+
+    public function get_receiptById($id, $month, $year)
+{
+    date_default_timezone_set('Asia/Bangkok');
+    $sql = "SELECT * FROM receipt WHERE r_book_id = ? AND MONTH(r_month) = ? AND YEAR(r_month) = ? ORDER BY r_month ASC";
+    $stmt = $this->db->connect()->prepare($sql);
+    $stmt->execute([$id, $month, $year]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $result;
+}
+
 }

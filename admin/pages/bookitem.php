@@ -101,8 +101,6 @@ $area_data = $area->getArea();
             </div>
             <div class=" flex justify-end gap-3 mt-3">
                 <button type="button" id="btnsaveedit" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
-                <button type="button" hidden id="BtnSaveDelete" class="py-3 px-8 duration-200 hover:bg-red-700 hover:text-white rounded-lg text-red-700 border-2 border-red-700">ลบ</button>
-                <button type="button" hidden id="BtnSaveAdd" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">เพิ่ม</button>
                 <button type="button" id="btnclose" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-400 border-2 border-yellow-500">ปิด</button>
             </div>
         </div>
@@ -156,6 +154,8 @@ $area_data = $area->getArea();
                             <th style="text-align: center;">ชำระเงิน</th>
                             <th style="text-align: center;">พิมพ์ใบแจ้งชำระ</th>
                             <th style="text-align: center;">พิมพ์ใบเสร็จรับเงิน</th>
+                            <th style="text-align: center;">แก้ไข</th>
+                            <th style="text-align: center;">ลบ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -184,13 +184,26 @@ $area_data = $area->getArea();
                                 <td><?php echo $value['b_phone'] ?></td>
                                 <td class=" text-left"><?php echo $area->get_time_book($value['b_wait_time']) ?></td>
                                 <td class=" text-left"><?php echo $area->get_time_book($value['b_appove_time']) ?></td>
+                                <?php
+                                $checkbill = $area->get_receiptById($value['b_id'], date('m'), date('Y')); // +1 
+                                ?>
                                 <td>
-                                    <button class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
+                                    <?php if (!empty($checkbill)) { ?>
+                                        <button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
+                                    <?php } else { ?>
+                                        <button class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
+                                    <?php } ?>
                                 <td>
-                                    <button onclick="Approve(<?php echo $value['b_id'] ?>,<?php echo $num ?>)" id="btnApprove" class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class='bx bx-printer'></i></button>
+                                    <button id="btnApprove" class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class='bx bx-printer'></i></button>
                                 </td>
                                 <td>
-                                    <button onclick="NotApprove(<?php echo $value['b_id'] ?>,<?php echo $num ?>)" class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
+                                    <button class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
+                                </td>
+                                <td>
+                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                </td>
+                                <td>
+                                    <button class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         <?php $num++;
@@ -209,6 +222,8 @@ $area_data = $area->getArea();
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
 <script>
     var mytable = document.getElementById("tableitem");
+    var modal = document.getElementById("my_modal_1");
+    var btnclose = document.getElementById("btnclose");
     var tableItemX = new DataTable(mytable, {
         responsive: true,
         "language": {
@@ -226,6 +241,73 @@ $area_data = $area->getArea();
             },
         }
     });
+
+    btnclose.addEventListener("click", function() {
+        modal.classList.remove("modal-open");
+    });
+
+    async function changeBookItem(area_id) {
+        modal.classList.add("modal-open");
+        document.getElementById("modal-title").innerHTML = "แก้ไขข้อมูล";
+        var modalcon = document.querySelector(".modal-con");
+        modalcon.innerHTML = ''
+        var divflex = document.createElement("div");
+        divflex.setAttribute("class", "flex flex-col gap-3");
+        var div1 = document.createElement("div");
+        var labelselect = document.createElement("label");
+        labelselect.setAttribute("class", "text-gray-700");
+        labelselect.innerHTML = "เลือกโซน";
+        var select = document.createElement("select");
+        select.setAttribute("id", "selectarea");
+        select.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        var option = document.createElement("option");
+        option.setAttribute("value", "");
+        option.innerHTML = "เลือกโซน";
+        select.appendChild(option);
+        var data = await getArea();
+        data.data.forEach(element => {
+            var option = document.createElement("option");
+            option.setAttribute("value", element.area_id);
+            option.innerHTML = element.area_name;
+            select.appendChild(option);
+            if (element.area_id == area_id) {
+                option.setAttribute("selected", true);
+            }
+        });
+        div1.appendChild(labelselect);
+        div1.appendChild(select);
+        divflex.appendChild(div1);
+        modalcon.appendChild(divflex);
+        var divgrid = document.createElement("div");
+        divgrid.setAttribute("class", "grid grid-cols-3 gap-3");
+        var div2 = document.createElement("div");
+        
+
+
+
+        var selectarea =document.getElementById("selectarea");
+        selectarea.addEventListener("change", async function() {
+            console.log(selectarea.value);
+        });
+    }
+    async function getArea() {
+        try {
+            var FormDatax = new FormData();
+            FormDatax.append('status', 'getArea');
+            const res = await fetch('../../rest/rest.php', {
+                method: 'POST',
+                body: FormDatax
+            })
+            if (res.ok) {
+                const data = await res.json()
+                return data
+            }
+            const data = await res.json()
+            return data
+        } catch (error) {
+            console.log(error);
+        }
+    }
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
