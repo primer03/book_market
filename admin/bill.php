@@ -27,61 +27,64 @@ $html = '
 <html>
 <head>
     <style>
-        body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .invoice-details {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        .total {
-            font-weight: bold;
-        }
-        .signature {
-            margin-top: 50px;
-            text-align: center;
-        }
-        .signature img {
-            width: 150px;
-        }
-        /* ส่วนที่เพิ่มเติม */
-        .barcode {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .barcode img {
-            width: 150px;
-        }
-        .barcode-number {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .logo {
-            text-align: center;
-        }
-       .logo > img {
-            width: 50px;
-        }
+    body {
+        font-family: "THSarabun", Helvetica, Arial, sans-serif;
+    }
+    .container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .invoice-details {
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        font-family: "THSarabun", Helvetica, Arial, sans-serif;
+    }
+    .total {
+        font-weight: bold;
+        font-family: "THSarabun Bold", Helvetica, Arial, sans-serif;
+    }
+    .signature {
+        margin-top: 50px;
+        text-align: center;
+    }
+    .signature img {
+        width: 150px;
+    }
+    /* ส่วนที่เพิ่มเติม */
+    .barcode {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .barcode img {
+        width: 150px;
+    }
+    .barcode-number {
+        margin-top: 10px;
+        font-size: 14px;
+        font-family: "THSarabun", Helvetica, Arial, sans-serif;
+    }
+    .logo {
+        text-align: center;
+    }
+    .logo > img {
+        width: 50px;
+    }
     </style>
 </head>
 <body>

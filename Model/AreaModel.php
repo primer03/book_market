@@ -66,9 +66,11 @@ class AreaModel
     }
     public function bookArea($item_id, $user_id, $shopname, $firstname, $lastname, $email, $phone)
     {
-        $sql = "INSERT INTO book_area (b_user_id,b_item_id,b_shop_name,b_firstname,b_lastname,b_email,b_phone) VALUES ('$user_id','$item_id','$shopname','$firstname','$lastname','$email','$phone')";
+        date_default_timezone_set("Asia/Bangkok");
+        $sql = "INSERT INTO book_area (b_user_id, b_item_id, b_shop_name, b_firstname, b_lastname, b_email, b_phone, b_wait_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->connect()->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$user_id, $item_id, $shopname, $firstname, $lastname, $email, $phone, date("Y-m-d H:i:s")]);
+
 
         $sql1 = "UPDATE area_item SET item_active = '1' WHERE item_id = '$item_id'";
         $stmt1 = $this->db->connect()->prepare($sql1);
@@ -123,7 +125,7 @@ class AreaModel
         if ($result != null) {
             $notuse = count($result);
             foreach ($result as $key => $value) {
-                if ($value['item_active'] == 1) {
+                if ($value['item_active'] == 2) {
                     $use++;
                 }
             }
@@ -357,6 +359,14 @@ class AreaModel
     public function get_book_area()
     {
         $sql = "SELECT * FROM book_area as ba, users as u, area_item as item, areas as area WHERE ba.b_user_id=u.user_id AND ba.b_item_id=item.item_id AND item.item_area_id=area.area_id AND ba.b_appove_time IS NULL ORDER BY ba.b_id DESC";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function get_book_areaAll()
+    {
+        $sql = "SELECT * FROM book_area as ba, users as u, area_item as item, areas as area WHERE ba.b_user_id=u.user_id AND ba.b_item_id=item.item_id AND item.item_area_id=area.area_id AND item.item_active = 2 ORDER BY ba.b_id DESC";
         $stmt = $this->db->connect()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -214,6 +214,8 @@ $zoneData = array_unique($zoneData);
                     if (data.status == 'success') {
                         if(data.msg.item_active == 2){
                             cancel_area.style.display = 'none';
+                        }else{
+                            cancel_area.style.display = 'block';
                         }
                         modal.classList.add('modal-open');
                         input_shopname.setAttribute('readonly', true);
