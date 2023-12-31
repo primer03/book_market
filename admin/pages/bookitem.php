@@ -94,7 +94,6 @@ $area_data = $area->getArea();
 <dialog id="my_modal_1" class="modal">
     <div class="modal-box">
         <h3 id="modal-title" class="font-bold text-lg"></h3>
-        <p class="py-2" id="titleDel"></p>
         <div class="mt-3">
             <div class="modal-con">
                 <div class="modal-wh"></div>
