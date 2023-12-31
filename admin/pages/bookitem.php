@@ -199,7 +199,7 @@ $area_data = $area->getArea();
                                     <button class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
                                 </td>
                                 <td>
-                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
                                 </td>
                                 <td>
                                     <button class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
@@ -223,10 +223,11 @@ $area_data = $area->getArea();
     var mytable = document.getElementById("tableitem");
     var modal = document.getElementById("my_modal_1");
     var btnclose = document.getElementById("btnclose");
-    var btnsaveedit =document.querySelector("#btnsaveedit");
+    var btnsaveedit = document.querySelector("#btnsaveedit");
     var DataSelect = [];
     var DataXXD = [];
     var book_id = 0;
+    var tableKey = 0;
     var tableItemX = new DataTable(mytable, {
         responsive: true,
         "language": {
@@ -250,33 +251,43 @@ $area_data = $area->getArea();
     });
 
     btnsaveedit.addEventListener("click", async function() {
-        if(DataSelect.length != 0){
-            console.log(DataSelect.item_id);
+        if (DataSelect.length != 0) {
+            console.log(DataSelect);
             console.log(book_id);
             var FormDatax = new FormData();
             FormDatax.append('status', 'changeBookItem');
             FormDatax.append('b_id', book_id);
             FormDatax.append('item_id', DataSelect.item_id);
-            try{
+            try {
                 const res = await fetch('../../rest/rest.php', {
                     method: 'POST',
                     body: FormDatax
                 })
                 if (res.ok) {
                     const data = await res.json()
-                    if(data.status == 'success'){
+                    if (data.status == 'success') {
+                        var keyidx = 0
+                        var Dataxsd = await getAreaitem(DataSelect.area_id);
+                        for ([key, value] of Object.entries(Dataxsd.data)) {
+                            if (value.item_id == DataSelect.item_id) {
+                                keyidx = parseInt(key) + 1;
+                                break;
+                            }
+                        }
+                        var row = tableItemX.data()[tableKey];
+                        row[3] = DataSelect.area_name;
+                        row[4] = keyidx
+                        tableItemX.row(tableKey).data(row).draw();
                         Swal.fire({
                             icon: 'success',
                             title: 'เปลี่ยนตำแหน่งสำเร็จ',
                             text: 'เปลี่ยนตำแหน่งสำเร็จ',
                             confirmButtonText: 'ตกลง',
                             confirmButtonColor: '#3085d6',
-                        }).then((result) => {
-                            // if (result.isConfirmed) {
-                            //     location.reload();
-                            // }
+                        }).then(async (result) => {
+                            modal.classList.remove("modal-open");
                         })
-                    }else{
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'เปลี่ยนตำแหน่งไม่สำเร็จ',
@@ -286,10 +297,10 @@ $area_data = $area->getArea();
                         })
                     }
                 }
-            }catch(error){
+            } catch (error) {
                 console.log(error);
             }
-        }else{
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: 'ไม่สามารถย้ายตำแหน่งได้',
@@ -300,7 +311,8 @@ $area_data = $area->getArea();
         }
     });
 
-    async function changeBookItem(area_id,b_id) {
+    async function changeBookItem(area_id, b_id, tableIDX) {
+        tableKey = tableIDX;
         book_id = b_id;
         DataSelect = [];
         modal.classList.add("modal-open");
