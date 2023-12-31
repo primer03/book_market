@@ -199,7 +199,7 @@ $area_data = $area->getArea();
                                     <button class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
                                 </td>
                                 <td>
-                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-expand"></i></button>
                                 </td>
                                 <td>
                                     <button class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
