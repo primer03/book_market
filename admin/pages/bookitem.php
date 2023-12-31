@@ -139,28 +139,28 @@ $area_data = $area->getArea();
             // echo "</pre>";
             ?>
             <div class="w-full animate-fadeIn bg-white p-3 rounded-lg shadow-lg">
-                <table id="tableitem" class="table table-zebra hover text-center">
+                <table id="tableitem" class="table table-zebra hover">
                     <thead>
                         <tr>
-                            <th style="text-align: center;">ลำดับ</th>
-                            <th style="text-align: center;">ชื่อร้าน</th>
-                            <th style="text-align: center;">ชื่อ-นามสกุล</th>
-                            <th style="text-align: center;">ชื่อโซน</th>
-                            <th style="text-align: center;">ตำแหน่งร้านค้า</th>
-                            <th style="text-align: center;">อีเมล</th>
-                            <th style="text-align: center;">เบอร์โทร</th>
-                            <th style="text-align: center;">วัน-เวลาที่ขอจอง</th>
-                            <th style="text-align: center;">วัน-เวลาที่อนุมัติ</th>
-                            <th style="text-align: center;">ชำระเงิน</th>
-                            <th style="text-align: center;">พิมพ์ใบแจ้งชำระ</th>
-                            <th style="text-align: center;">พิมพ์ใบเสร็จรับเงิน</th>
-                            <th style="text-align: center;">แก้ไข</th>
-                            <th style="text-align: center;">ลบ</th>
+                            <th>ลำดับ</th>
+                            <th>ชื่อร้าน</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>ชื่อโซน</th>
+                            <th>ตำแหน่งร้านค้า</th>
+                            <th>อีเมล</th>
+                            <th>เบอร์โทร</th>
+                            <th>วัน-เวลาที่ขอจอง</th>
+                            <th>วัน-เวลาที่อนุมัติ</th>
+                            <th>ชำระเงิน</th>
+                            <th>พิมพ์ใบแจ้งชำระ</th>
+                            <th>พิมพ์ใบเสร็จรับเงิน</th>
+                            <th>แก้ไข</th>
+                            <th>ลบ</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($bookitem as $key => $value) { ?>
-                            <tr>
+                            <tr class=" text-center">
                                 <td><?php echo $num ?></td>
                                 <td><?php echo $value['b_shop_name'] ?></td>
                                 <td><?php echo $value['b_firstname'] . " " . $value['b_lastname'] ?></td>
