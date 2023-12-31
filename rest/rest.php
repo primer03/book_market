@@ -8,7 +8,7 @@ $area = new AreaModel();
 if (isset($_GET['logout'])) {
   $user->sign_out();
   //header("location: ../index.php");
-}elseif (isset($_GET['getarea'])) {
+} elseif (isset($_GET['getarea'])) {
   echo json_encode($area->getArea());
 }
 if (isset($_POST['status'])) {
@@ -19,7 +19,7 @@ if (isset($_POST['status'])) {
       $image = addslashes(file_get_contents($_FILES['images']['tmp_name']));
       $user_status = $_POST['user_status'];
       echo  $user->register($email, $password, $image, $user_status);
-    }else{
+    } else {
       echo json_encode(['status' => 'error', 'msg' => 'ขนาดไฟล์ใหญ่เกินไป']);
     }
   } elseif ($_POST['status'] == 'login') {
@@ -59,55 +59,59 @@ if (isset($_POST['status'])) {
     $b_id = $_POST['b_id'];
     $user_id = $_POST['user_id'];
     echo $area->cancelbook($b_id, $user_id);
-  }elseif ($_POST['status'] == 'verifly') {
+  } elseif ($_POST['status'] == 'verifly') {
     $verifly = $_POST['verifly'];
     $email = $_POST['user_email'];
-    echo $user->check_verifly($email,$verifly);
-  }elseif ($_POST['status'] == 'newpassword') {
+    echo $user->check_verifly($email, $verifly);
+  } elseif ($_POST['status'] == 'newpassword') {
     $newpassword = md5($_POST['newpassword']);
     $email = $_POST['user_email'];
-    echo $user->newpassword($email,$newpassword);
-  }elseif ($_POST['status'] == 'getArea') {
+    echo $user->newpassword($email, $newpassword);
+  } elseif ($_POST['status'] == 'getArea') {
     echo json_encode(['status' => 'success', 'data' => $area->getArea()]);
-  }elseif ($_POST['status'] == 'Checkuniqarea') {
+  } elseif ($_POST['status'] == 'Checkuniqarea') {
     $area_name = $_POST['area_name'];
     $area_name_new = $_POST['area_name_new'];
     sleep(1);
-    echo $area->Checkuniqarea($area_name,$area_name_new);
-  }elseif ($_POST['status'] == 'insertzone') {
+    echo $area->Checkuniqarea($area_name, $area_name_new);
+  } elseif ($_POST['status'] == 'insertzone') {
     $area_name = $_POST['area_name'];
     echo $area->insert_area($area_name);
-  }elseif ($_POST['status'] == 'deletezone') {
+  } elseif ($_POST['status'] == 'deletezone') {
     $area_id = $_POST['area_id'];
     echo $area->delete_area($area_id);
-  }elseif ($_POST['status'] == 'getAreaitems') {
+  } elseif ($_POST['status'] == 'getAreaitems') {
     $area_id = $_POST['area_id'];
     echo json_encode(['status' => 'success', 'data' => $area->getAreaitem($area_id)]);
-  }elseif ($_POST['status'] == 'getAreaItemID') {
+  } elseif ($_POST['status'] == 'getAreaItemID') {
     $item_id = $_POST['item_id'];
     echo json_encode(['status' => 'success', 'data' => $area->get_area_item($item_id)]);
-  }elseif ($_POST['status'] == 'updateAreaItem') {
+  } elseif ($_POST['status'] == 'updateAreaItem') {
     $item_id = $_POST['item_id'];
     $item_height = $_POST['item_height'];
     $item_width = $_POST['item_width'];
     $item_price = $_POST['item_price'];
-    echo $area->update_area_item($item_id,$item_height,$item_width,$item_price);
-  }elseif ($_POST['status'] == 'deleteAreaItem') {
+    echo $area->update_area_item($item_id, $item_height, $item_width, $item_price);
+  } elseif ($_POST['status'] == 'deleteAreaItem') {
     $item_id = $_POST['item_id'];
     echo $area->deleteAreaItemById($item_id);
-  }elseif ($_POST['status'] == 'count_area') {
+  } elseif ($_POST['status'] == 'count_area') {
     $area_id = $_POST['area_id'];
     echo json_encode(['status' => 'success', 'data' => $area->count_area($area_id)]);
-  }elseif ($_POST['status'] == 'getArea') {
+  } elseif ($_POST['status'] == 'getArea') {
     echo json_encode(['status' => 'success', 'data' => $area->getArea()]);
-  }elseif ($_POST['status'] == 'insertAreaItem') {
+  } elseif ($_POST['status'] == 'insertAreaItem') {
     $area_id = $_POST['area_id'];
     $item_height = $_POST['item_height'];
     $item_width = $_POST['item_width'];
     $item_price = $_POST['item_price'];
-    echo $area->insertAreaItem($area_id,$item_height,$item_width,$item_price);
-  }elseif ($_POST['status'] == 'getBookItemById') {
+    echo $area->insertAreaItem($area_id, $item_height, $item_width, $item_price);
+  } elseif ($_POST['status'] == 'getBookItemById') {
     $b_id = $_POST['b_id'];
     echo json_encode(['status' => 'success', 'data' => $area->get_book_area_by_id($b_id)]);
+  } elseif ($_POST['status'] == 'changeBookItem') {
+    $b_id = $_POST['b_id'];
+    $item_id = $_POST['item_id'];
+    echo $area->update_bookItem($item_id, $b_id);
   }
 }

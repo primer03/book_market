@@ -199,7 +199,7 @@ $area_data = $area->getArea();
                                     <button class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
                                 </td>
                                 <td>
-                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
                                 </td>
                                 <td>
                                     <button class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
@@ -226,6 +226,7 @@ $area_data = $area->getArea();
     var btnsaveedit =document.querySelector("#btnsaveedit");
     var DataSelect = [];
     var DataXXD = [];
+    var book_id = 0;
     var tableItemX = new DataTable(mytable, {
         responsive: true,
         "language": {
@@ -250,7 +251,44 @@ $area_data = $area->getArea();
 
     btnsaveedit.addEventListener("click", async function() {
         if(DataSelect.length != 0){
-            console.log(DataSelect);
+            console.log(DataSelect.item_id);
+            console.log(book_id);
+            var FormDatax = new FormData();
+            FormDatax.append('status', 'changeBookItem');
+            FormDatax.append('b_id', book_id);
+            FormDatax.append('item_id', DataSelect.item_id);
+            try{
+                const res = await fetch('../../rest/rest.php', {
+                    method: 'POST',
+                    body: FormDatax
+                })
+                if (res.ok) {
+                    const data = await res.json()
+                    if(data.status == 'success'){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เปลี่ยนตำแหน่งสำเร็จ',
+                            text: 'เปลี่ยนตำแหน่งสำเร็จ',
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#3085d6',
+                        }).then((result) => {
+                            // if (result.isConfirmed) {
+                            //     location.reload();
+                            // }
+                        })
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เปลี่ยนตำแหน่งไม่สำเร็จ',
+                            text: 'เปลี่ยนตำแหน่งไม่สำเร็จ',
+                            confirmButtonText: 'ตกลง',
+                            confirmButtonColor: '#3085d6',
+                        })
+                    }
+                }
+            }catch(error){
+                console.log(error);
+            }
         }else{
             Swal.fire({
                 icon: 'error',
@@ -262,7 +300,8 @@ $area_data = $area->getArea();
         }
     });
 
-    async function changeBookItem(area_id) {
+    async function changeBookItem(area_id,b_id) {
+        book_id = b_id;
         DataSelect = [];
         modal.classList.add("modal-open");
         document.getElementById("modal-title").innerHTML = "แก้ไขข้อมูล";
@@ -323,7 +362,6 @@ $area_data = $area->getArea();
         }
         divflex.appendChild(divgrid);
         modalcon.appendChild(divflex);
-
 
         var selectarea = document.getElementById("selectarea");
         selectarea.addEventListener("change", async function() {

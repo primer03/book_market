@@ -440,13 +440,43 @@ class AreaModel
     }
 
     public function get_receiptById($id, $month, $year)
-{
-    date_default_timezone_set('Asia/Bangkok');
-    $sql = "SELECT * FROM receipt WHERE r_book_id = ? AND MONTH(r_month) = ? AND YEAR(r_month) = ? ORDER BY r_month ASC";
-    $stmt = $this->db->connect()->prepare($sql);
-    $stmt->execute([$id, $month, $year]);
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result;
-}
+    {
+        date_default_timezone_set('Asia/Bangkok');
+        $sql = "SELECT * FROM receipt WHERE r_book_id = ? AND MONTH(r_month) = ? AND YEAR(r_month) = ? ORDER BY r_month ASC";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$id, $month, $year]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    }
 
+    public function update_bookItem($item_id, $b_id)
+    {
+        $sql = "SELECT * FROM book_area WHERE b_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$b_id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $item_id_old = $result[0]['b_item_id'];
+        $sql1 = "UPDATE area_item SET item_active = '0' WHERE item_id = ?";
+        $stmt1 = $this->db->connect()->prepare($sql1);
+        $stmt1->execute([$item_id_old]);
+        if ($stmt1) {
+            $sql2 = "UPDATE area_item SET item_active = '2' WHERE item_id = ?";
+            $stmt2 = $this->db->connect()->prepare($sql2);
+            $stmt2->execute([$item_id]);
+            if ($stmt2) {
+                $sql3 = "UPDATE book_area SET b_item_id = ? WHERE b_id = ?";
+                $stmt3 = $this->db->connect()->prepare($sql3);
+                $stmt3->execute([$item_id, $b_id]);
+                if ($stmt3) {
+                    return json_encode(["status" => "success", "msg" => "success"]);
+                } else {
+                    return json_encode(["status" => "error", "msg" => "error"]);
+                }
+            } else {
+                return json_encode(["status" => "error", "msg" => "error"]);
+            }
+        } else {
+            return json_encode(["status" => "error", "msg" => "error"]);
+        }
+    }
 }
