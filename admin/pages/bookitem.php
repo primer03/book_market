@@ -224,6 +224,9 @@ $area_data = $area->getArea();
     var mytable = document.getElementById("tableitem");
     var modal = document.getElementById("my_modal_1");
     var btnclose = document.getElementById("btnclose");
+    var btnsaveedit =document.querySelector("#btnsaveedit");
+    var DataSelect = [];
+    var DataXXD = [];
     var tableItemX = new DataTable(mytable, {
         responsive: true,
         "language": {
@@ -246,7 +249,22 @@ $area_data = $area->getArea();
         modal.classList.remove("modal-open");
     });
 
+    btnsaveedit.addEventListener("click", async function() {
+        if(DataSelect.length != 0){
+            console.log(DataSelect);
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'ไม่สามารถย้ายตำแหน่งได้',
+                text: 'กรุณาเลือกตำแหน่งที่ต้องการย้าย',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#3085d6',
+            })
+        }
+    });
+
     async function changeBookItem(area_id) {
+        DataSelect = [];
         modal.classList.add("modal-open");
         document.getElementById("modal-title").innerHTML = "แก้ไขข้อมูล";
         var modalcon = document.querySelector(".modal-con");
@@ -277,19 +295,100 @@ $area_data = $area->getArea();
         div1.appendChild(labelselect);
         div1.appendChild(select);
         divflex.appendChild(div1);
-        modalcon.appendChild(divflex);
+        var title = document.createElement("h3");
+        title.setAttribute("class", "font-semibold text-lg");
+        title.innerHTML = "เลือกตำแหน่งที่ต้องการย้าย";
+        divflex.appendChild(title);
+        var dataX = await getAreaitem(area_id);
         var divgrid = document.createElement("div");
-        divgrid.setAttribute("class", "grid grid-cols-3 gap-3");
-        var div2 = document.createElement("div");
-        
+        divgrid.setAttribute("class", "animate-fadeIn grid grid-cols-3 gap-3");
+        divgrid.setAttribute("id", "divgrid");
+        console.log(dataX);
+        DataXXD = dataX.data;
+        for ([key, value] of Object.entries(dataX.data)) {
+            var div = document.createElement("div");
+            div.setAttribute("class", "cursor-pointer py-9 px-3 bg-white shadow-lg rounded-lg border");
+            div.setAttribute('id', `boxGridItem`);
+            div.setAttribute('onclick', `changeAreaItemId('${value.item_id}')`);
+            var p = document.createElement("p");
+            p.setAttribute("class", "text-center text-md font-semibold");
+            p.innerHTML = `ตำแหน่งที่ ${(parseInt(key) + 1)}`
+            div.appendChild(p);
+            if (value.item_active > 0) {
+                var small = document.createElement("small");
+                small.setAttribute("class", "block text-center text-md font-semibold text-green-500");
+                small.innerHTML = `มีการจอง`
+                div.appendChild(small);
+            }
+            divgrid.appendChild(div);
+        }
+        divflex.appendChild(divgrid);
+        modalcon.appendChild(divflex);
 
 
-
-        var selectarea =document.getElementById("selectarea");
+        var selectarea = document.getElementById("selectarea");
         selectarea.addEventListener("change", async function() {
-            console.log(selectarea.value);
+            DataSelect = [];
+            if (selectarea.value != "") {
+                var dataXD = await getAreaitem(selectarea.value);
+                DataXXD = dataXD.data;
+                var divgrid = document.getElementById("divgrid");
+                divgrid.innerHTML = '';
+                for ([key, value] of Object.entries(dataXD.data)) {
+                    var div = document.createElement("div");
+                    div.setAttribute("class", "cursor-pointer animate-zoom-animation py-9 px-3 bg-white shadow-lg rounded-lg border");
+                    div.setAttribute('id', `boxGridItem`);
+                    div.setAttribute('onclick', `changeAreaItemId('${value.item_id}')`);
+                    var p = document.createElement("p");
+                    p.setAttribute("class", "text-center text-md font-semibold");
+                    p.innerHTML = `ตำแหน่งที่ ${(parseInt(key) + 1)}`
+                    div.appendChild(p);
+                    if (value.item_active > 0) {
+                        var small = document.createElement("small");
+                        small.setAttribute("class", "block text-center text-md font-semibold text-green-500");
+                        small.innerHTML = `มีการจอง`
+                        div.appendChild(small);
+                    }
+                    divgrid.appendChild(div);
+                }
+            } else {
+                var divgrid = document.getElementById("divgrid");
+                divgrid.innerHTML = '';
+            }
         });
     }
+    async function changeAreaItemId(item_id) {
+        var idxkevActive = 0;
+        var boxGridItem = document.querySelectorAll("#boxGridItem");
+        boxGridItem.forEach((element, index) => {
+            if (element.classList.contains('outline')) {
+                idxkevActive = index;
+            }
+        });
+        // console.log(DataXXD)
+        for ([key, value] of Object.entries(DataXXD)) {
+            if (value.item_id == item_id) {
+                if (value.item_active > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถเลือกตำแหน่งนี้ได้',
+                        text: 'ตำแหน่งนี้มีการจองแล้ว',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3085d6',
+                    })
+                } else {
+                    DataSelect = value;
+                    boxGridItem[idxkevActive].classList.remove("outline", "outline-blue-500", "outline-2", "outline-offset-2");
+                    if (!boxGridItem[key].classList.contains('outline')) {
+                        boxGridItem[key].classList.add("outline", "outline-blue-500", "outline-2", "outline-offset-2");
+                    } else {
+                        boxGridItem[key].classList.remove("outline", "outline-blue-500", "outline-2", "outline-offset-2");
+                    }
+                }
+            }
+        }
+    }
+
     async function getArea() {
         try {
             var FormDatax = new FormData();
@@ -306,6 +405,20 @@ $area_data = $area->getArea();
             return data
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    async function getAreaitem(id) {
+        var data = new FormData();
+        data.append('status', 'getAreaitems');
+        data.append('area_id', id);
+        var response = await fetch('../../rest/rest.php', {
+            method: 'POST',
+            body: data
+        });
+        if (response.ok) {
+            var res = await response.json();
+            return res;
         }
     }
 </script>
