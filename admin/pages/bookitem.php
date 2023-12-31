@@ -153,7 +153,7 @@ $area_data = $area->getArea();
                             <th>ชำระเงิน</th>
                             <th>พิมพ์ใบแจ้งชำระ</th>
                             <th>พิมพ์ใบเสร็จรับเงิน</th>
-                            <th>แก้ไข</th>
+                            <th>ย้ายตำแหน่งร้านค้า</th>
                             <th>ลบ</th>
                         </tr>
                     </thead>
@@ -277,6 +277,7 @@ $area_data = $area->getArea();
                         var row = tableItemX.data()[tableKey];
                         row[3] = DataSelect.area_name;
                         row[4] = keyidx
+                        row[12] = `<button onclick="changeBookItem(${DataSelect.area_id},${book_id},${tableKey})" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>`; 
                         tableItemX.row(tableKey).data(row).draw();
                         Swal.fire({
                             icon: 'success',
