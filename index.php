@@ -24,10 +24,10 @@
 <?php
 //include_once 'src/navbar.php';
 include_once "Model/UserModel.php";
+$userdata = null;
 if (isset($_COOKIE['login'])) {
     $user = new UserModel();
     $userdata = $user->get_cookie($_COOKIE['login']);
-    //print_r($userdata);
 }
 ?>
 
@@ -42,12 +42,27 @@ if (isset($_COOKIE['login'])) {
         //print_r($url);
         if (isset($url[2])) {
             if ($url[2] == 'register') {
-                include_once 'auth/register.php';
+                include_once 'auth/register.php'; 
             }else if($url[2] == 'area'){
-                $area_id = $url[3];
-                include_once 'src/page/area.php';
+                // $area_id = $url[3];
+                // include_once 'src/page/area.php';
+
+                if($userdata == 0){
+                    setcookie('login', '', time() - 3600, '/');
+                    session_destroy();
+                    header('location: ../../index.php');
+                }else{
+                    $area_id = $url[3];
+                    include_once 'src/page/area.php';
+                }
             }else if($url[2] == 'itembook'){
-                include_once 'src/page/book.php';
+                if($userdata == 0){
+                    setcookie('login', '', time() - 3600, '/');
+                    session_destroy();
+                    header('location: ../../index.php');
+                }else{
+                    include_once 'src/page/book.php';
+                }
             }else if($url[2] == 'forgot'){
                 include_once 'auth/forgot.php';
             }else if($url[2] == 'verifly'){
@@ -57,7 +72,13 @@ if (isset($_COOKIE['login'])) {
             if (!isset($_COOKIE['login'])) {
                 include_once 'auth/login.php';
             } else {
-                include_once 'src/page/home.php';
+                if ($userdata == 0) {
+                    setcookie('login', '', time() - 3600, '/');
+                    session_destroy();
+                    header('location: index.php');
+                } else {
+                    include_once 'src/page/home.php';
+                }
             }
         }
     }

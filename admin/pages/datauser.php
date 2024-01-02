@@ -1,0 +1,668 @@
+<?php
+include_once "../../Model/UserModel.php";
+include_once "../../Model/AreaModel.php";
+// echo $_SESSION['user_status'];
+if (!isset($_COOKIE['login'])) {
+    header('location: ../index.php');
+} else {
+    $user = new UserModel();
+    $userdata = $user->get_cookie($_COOKIE['login']);
+    if (isset($_SESSION['user_status'])) {
+        if ($_SESSION['user_status'] == 0) {
+            header('location: ../index.php');
+        }
+    }
+}
+$page = 'จัดการข้อมูลผู้ใช้'
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.24/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../dist/output.css">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
+    <title>Soft UI Dashboard Tailwind</title>
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- Nucleo Icons -->
+    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Popper -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Main Styling -->
+    <link href="../assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/fontawesome.min.css" integrity="sha512-d0olNN35C6VLiulAobxYHZiXJmq+vl+BGIgAxQtD5+kqudro/xNMvv2yIHAciGHpExsIbKX3iLg+0B6d0k4+ZA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+</head>
+<?php
+$gradient_b = [
+    "bg-gradient-to-b from-purple-700 to-cyan-400",
+    "bg-gradient-to-b from-blue-700 to-green-400",
+    "bg-gradient-to-b from-indigo-700 to-yellow-400",
+    "bg-gradient-to-b from-pink-700 to-amber-400",
+    "bg-gradient-to-b from-red-700 to-teal-400",
+    "bg-gradient-to-b from-orange-700 to-blue-400",
+    "bg-gradient-to-b from-yellow-700 to-indigo-400",
+    "bg-gradient-to-b from-green-700 to-purple-400",
+    "bg-gradient-to-b from-teal-700 to-red-400",
+    "bg-gradient-to-b from-blue-700 to-orange-400",
+    "bg-gradient-to-b from-cyan-700 to-purple-400",
+    "bg-gradient-to-b from-rose-700 to-amber-400",
+    "bg-gradient-to-b from-lime-700 to-violet-400",
+    "bg-gradient-to-b from-fuchsia-700 to-yellow-400",
+    "bg-gradient-to-b from-emerald-700 to-red-400",
+    "bg-gradient-to-b from-indigo-700 to-rose-400",
+    "bg-gradient-to-b from-cyan-700 to-fuchsia-400",
+    "bg-gradient-to-b from-purple-700 to-lime-400",
+    "bg-gradient-to-b from-amber-700 to-emerald-400",
+    "bg-gradient-to-b from-teal-700 to-blue-400",
+    "bg-gradient-to-b from-red-700 to-yellow-400",
+    "bg-gradient-to-b from-green-700 to-indigo-400",
+    "bg-gradient-to-b from-orange-700 to-pink-400",
+    "bg-gradient-to-b from-yellow-700 to-rose-400",
+    "bg-gradient-to-b from-blue-700 to-lime-400",
+    "bg-gradient-to-b from-purple-700 to-indigo-400",
+    "bg-gradient-to-b from-pink-700 to-amber-400",
+    "bg-gradient-to-b from-teal-700 to-red-400",
+    "bg-gradient-to-b from-orange-700 to-cyan-400",
+    "bg-gradient-to-b from-green-700 to-yellow-400",
+    "bg-gradient-to-b from-indigo-700 to-fuchsia-400",
+    "bg-gradient-to-b from-lime-700 to-rose-400",
+    "bg-gradient-to-b from-blue-700 to-amber-400",
+    "bg-gradient-to-b from-yellow-700 to-red-400",
+    "bg-gradient-to-b from-cyan-700 to-indigo-400",
+    "bg-gradient-to-b from-purple-700 to-blue-400",
+    "bg-gradient-to-b from-red-700 to-green-400",
+    "bg-gradient-to-b from-orange-700 to-teal-400",
+    "bg-gradient-to-b from-fuchsia-700 to-yellow-400",
+    "bg-gradient-to-b from-emerald-700 to-indigo-400",
+];
+$userData = $user->getUser();
+$DescUserData = $userData;
+sort($DescUserData);
+?>
+<dialog id="my_modal_1" class="modal">
+    <div class="modal-box">
+        <h3 id="modal-title" class="font-bold text-lg"></h3>
+        <div class="mt-3">
+            <div class="modal-con">
+                <div class=" w-full flex flex-col gap-3">
+                    <div class=" w-full h-auto rounded-md border p-3 flex flex-col justify-center items-center sm:flex-row gap-3">
+                        <div class=" w-20 h-20 border-[3px] border-gray-400 rounded-full flex-shrink-0 border-dashed ">
+                            <div class=" w-full relative h-full flex justify-center items-center overflow-hidden cursor-pointer">
+                                <input type="file" class="cursor-pointer z-20 w-28 h-28 absolute -top-7 opacity-0 rounded-full" name="" id="">
+                                <img src="https://i.imgur.com/2eNcQ4D.jpg" id="imageshow" hidden class=" z-0 w-full h-full absolute rounded-full object-cover" alt="">
+                                <i class="fa-solid fa-camera z-10 text-gray-600 opacity-80"></i>
+                            </div>
+                        </div>
+                        <div class=" w-full flex flex-col gap-3">
+                            <div class=" w-full flex flex-col">
+                                <label for="">อีเมล</label>
+                                <input type="text" id="email" class="input input-bordered" placeholder="อีเมล" />
+                            </div>
+                            <div class=" w-full flex flex-col">
+                                <label for="">รหัสผ่าน</label>
+                                <input type="password" id="password" class="input input-bordered" placeholder="รหัสผ่าน" />
+                            </div>
+                            <div class=" w-full flex flex-col">
+                                <label for="">สถานะ</label>
+                                <select id="status" class="select select-bordered w-full">
+                                    <option value="1">แอดมิน</option>
+                                    <option value="0">ผู้ใช้</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-wh"></div>
+            </div>
+            <div class=" flex justify-end gap-3 mt-3">
+                <button type="button" id="btnsaveedit" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
+                <button type="button" hidden id="btnsaveeditData" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
+                <button type="button" id="btnclose" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-400 border-2 border-yellow-500">ปิด</button>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<body class="m-0 font-sans text-base antialiased font-normal leading-default bg-gray-50 text-slate-500">
+    <?php include_once "../widget/sidebar.php" ?>
+    <main class="ease-soft-in-out xl:ml-68.5 relative overflow-auto h-full max-h-screen h-screen rounded-xl transition-all duration-200">
+        <!-- Navbar -->
+        <?php include_once "../widget/navbar.php" ?>
+        <div class="w-full px-6 py-6 mx-auto">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-2xl font-bold">จัดการข้อมูลผู้ใช้</h3>
+                <button type="button" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700" onclick="addData()"><i class="fa-solid fa-plus"></i> เพิ่มข้อมูล</button>
+            </div>
+            <!-- content -->
+            <div class="w-full animate-fadeIn bg-white p-3 rounded-lg shadow-lg">
+                <table id="tableitem" class="table table-zebra hover">
+                    <thead>
+                        <tr>
+                            <th>เลือก</th>
+                            <th>ลำดับ</th>
+                            <th>รูป</th>
+                            <th>อีเมล</th>
+                            <th>สถานะ</th>
+                            <th>แก้ไข</th>
+                            <th>ลบ</th>
+                        </tr>
+                    </thead>
+                    <tbody class=" text-center">
+                        <?php $num = 0; ?>
+                        <?php foreach ($DescUserData as $key => $value) {  ?>
+                            <?php if ($value['user_email'] != $_SESSION['user_email'] && strtolower($value['user_email']) != 'admin@gmail.com') { ?>
+                                <tr class="text-center">
+                                    <td><input type="checkbox" class="checkbox rounded-sm" /></td>
+                                    <td><?= $num + 1 ?></td>
+                                    <td>
+                                        <div class=" flex justify-center">
+                                            <img src="data:image/jpeg;base64,<?= base64_encode($value['user_image_data']) ?>" class="w-14 h-14 rounded-full object-cover">
+                                        </div>
+                                    </td>
+                                    <td><?= $value['user_email'] ?></td>
+                                    <td>
+                                        <?php if ($value['user_status'] == 1) { ?>
+                                            <span class="bg-gradient-to-tl w-full from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">แอดมิน</span>
+                                        <?php } else { ?>
+                                            <span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>
+                                        <?php } ?>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('<?= $value['user_id'] ?>','<?= $value['user_email'] ?>','<?= $value['user_status'] ?>',<?= $num ?>)">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                    <td><button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('<?= $value['user_id'] ?>',<?= $num ?>)"><i class="fa-solid fa-trash"></i></button></td>
+                                </tr>
+                            <?php $num++;
+                            } ?>
+                        <?php  } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+<script>
+    var mytable = document.getElementById("tableitem");
+    var btnclose = document.getElementById("btnclose");
+    var modal = document.getElementById("my_modal_1");
+    var btnsaveedit = document.getElementById("btnsaveedit");
+    var user_idActive = 0;
+    var email_user = '';
+    var tableIdx = 0;
+    var btnsaveeditData = document.getElementById("btnsaveeditData");
+
+    function addData() {
+        modal.classList.add("modal-open");
+        document.getElementById("modal-title").innerHTML = "เพิ่มข้อมูลผู้ใช้";
+        document.getElementById("email").value = '';
+        document.getElementById("status").value = 1;
+        document.getElementById("btnsaveedit").hidden = true;
+        btnsaveeditData.hidden = false;
+        var modalcon = document.querySelector(".modal-con");
+        modalcon.innerHTML = `<div class=" w-full flex flex-col gap-3">
+                    <div class=" w-full h-auto rounded-md border p-3 flex flex-col justify-center items-center sm:flex-row gap-3">
+                        <div class=" w-20 h-20 border-[3px] border-gray-400 rounded-full flex-shrink-0 border-dashed ">
+                            <div class=" w-full relative h-full flex justify-center items-center overflow-hidden cursor-pointer">
+                                <input type="file" onchange="readImg(this)" class="cursor-pointer z-20 w-28 h-28 absolute -top-7 opacity-0 rounded-full" name="" id="images">
+                                <img src="https://i.imgur.com/2eNcQ4D.jpg" id="imageshow" hidden class=" z-0 w-full h-full absolute rounded-full object-cover" alt="">
+                                <i class="fa-solid fa-camera z-10 text-gray-600 opacity-80"></i>
+                            </div>
+                        </div>
+                        <div class=" w-full flex flex-col gap-3">
+                            <div class=" w-full flex flex-col">
+                                <label for="">อีเมล</label>
+                                <input type="text" id="email" class="input input-bordered" placeholder="อีเมล" />
+                            </div>
+                            <div class=" w-full flex flex-col">
+                                <label for="">รหัสผ่าน</label>
+                                <div class=" w-full flex flex-col">
+                                    <input type="password" id="password" class="input input-bordered" placeholder="รหัสผ่าน" />
+                                    <span class="text-red-600 text-xs">*ต้องขิ้นต้นโดยอักษรตัวใหญ่แล้วต้องมีอย่าน้อย 8 ตัว</span>
+                                </div>
+                            </div>
+                            <div class=" w-full flex flex-col">
+                                <label for="">สถานะ</label>
+                                <select id="status" class="select select-bordered w-full">
+                                    <option value="1">แอดมิน</option>
+                                    <option value="0">ผู้ใช้</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+    }
+
+    btnsaveeditData.addEventListener("click", async function() {
+        const regpsw = /^[A-Z][a-zA-Z0-9]{7,}$/;
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        var inputemail = document.getElementById("email");
+        var inputpassword = document.getElementById("password");
+        var inputstatus = document.getElementById("status");
+        var img = document.getElementById("images");
+        if (checkinput([inputemail, inputpassword, inputstatus, img])) {
+            if (emailRegex.test(inputemail.value)) {
+                if (regpsw.test(inputpassword.value)) {
+                    try {
+                        let formData = new FormData();
+                        formData.append('user_email', inputemail.value);
+                        formData.append('user_password', inputpassword.value);
+                        formData.append('images', img.files[0]);
+                        formData.append('status', 'register')
+                        formData.append('user_status', inputstatus.value);
+                        let response = await fetch('../../rest/rest.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (response.ok) {
+                            let data = await response.json();
+                            if (data.status == 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: "เพิ่มข้อมูลสำเร็จ",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then((result) => {
+                                    if (result.dismiss === Swal.DismissReason.timer) {
+                                        var fileimage = URL.createObjectURL(img.files[0]);
+                                        var colors = '';
+                                        if(inputstatus.value == 1){
+                                            colors = 'from-green-600 to-lime-400'
+                                        }else{
+                                            colors = 'from-red-600 to-pink-400'
+                                        }
+                                        console.log(tableItemX.data());
+                                        tableItemX.row.add([
+                                            `<input type="checkbox" class="checkbox rounded-sm" />`,
+                                            tableItemX.data().length + 1,
+                                            `<div class=" flex justify-center"><img src="${fileimage}" class="w-14 h-14 rounded-full object-cover"></div>`,
+                                            inputemail.value,
+                                            `<span class="bg-gradient-to-tl w-full ${colors} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">${inputstatus.value == 1 ? 'แอดมิน' : 'ผู้ใช้'}</span>`,
+                                            `<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${data.user_id}','${inputemail.value}','${inputstatus.value}',${tableItemX.data().length})"><i class="fa-regular fa-pen-to-square"></i></button>`,
+                                            `<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${data.user_id}',${tableItemX.data().length})"><i class="fa-solid fa-trash"></i></button>`
+                                        ]).draw();
+                                        // var TableData = tableItemX.data();
+                                        // TableData.each(function(value, index) {
+                                        //     var matches = value[5].match(/editData\('(\d+)','(.*?)','(\d+)',(\d+)\)/);
+                                        //     tableItemX.cell(index, 1).data(index + 1).draw();
+                                        //     tableItemX.cell(index, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${matches[1]}','${matches[2]}','${matches[3]}',${index})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                        //     tableItemX.cell(index, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${matches[1]}',${index})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                        // });
+                                        modal.classList.remove("modal-open");
+                                        btnsaveeditData.hidden = true;
+                                        document.getElementById("btnsaveedit").hidden = false;
+                                    }
+                                })
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
+                        } else {
+                            console.log(response.statusText);
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'รหัสผ่านต้องขึ้นต้นด้วยตัวใหญ่และมีความยาวอย่างน้อย 8 ตัวอักษร',
+                        text: 'รหัสผ่านต้องขึ้นต้นด้วยตัวใหญ่และมีความยาวอย่างน้อย 8 ตัวอักษร',
+                    })
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'กรุณากรอกอีเมลให้ถูกต้อง',
+                    text: 'กรุณากรอกอีเมลให้ถูกต้อง',
+                })
+            }
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'กรุณากรอกข้อมูลให้ครบ',
+                text: 'กรุณากรอกข้อมูลให้ครบ',
+            })
+        }
+    });
+
+    function checkinput(input) {
+        var check = true;
+        input.forEach(e => {
+            if (e.value == "") {
+                if (e.type != 'file') {
+                    e.classList.remove('input-primary');
+                    e.classList.add('input-error');
+                }
+                check = false;
+            }
+        });
+        return check;
+    }
+
+    function readImg(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("imageshow").hidden = false;
+                document.getElementById("imageshow").src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    btnclose.addEventListener("click", function() {
+        modal.classList.remove("modal-open");
+    });
+
+    async function deleteData(user_id, idx) {
+        Swal.fire({
+            title: 'คุณต้องการลบข้อมูลใช่หรือไม่?',
+            text: "คุณต้องการลบข้อมูลใช่หรือไม่?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่',
+            cancelButtonText: 'ไม่ใช่'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                var FormDataX = new FormData();
+                FormDataX.append('status', 'deleteUser');
+                FormDataX.append('user_id', user_id);
+                try {
+                    var res = await fetch('../../rest/rest.php', {
+                        method: 'POST',
+                        body: FormDataX
+                    });
+                    if (res.ok) {
+                        var data = await res.json();
+                        if (data.status == 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then((result) => {
+                                if (result.dismiss === Swal.DismissReason.timer) {
+                                    tableItemX.row(idx).remove().draw();
+                                    var TableData = tableItemX.data();
+                                    TableData.each(function(value, index) {
+                                        var matches = value[5].match(/editData\('(\d+)','(.*?)','(\d+)',(\d+)\)/);
+                                        tableItemX.cell(index, 1).data(index + 1).draw();
+                                        tableItemX.cell(index, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${matches[1]}','${matches[2]}','${matches[3]}',${index})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                        tableItemX.cell(index, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${matches[1]}',${index})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    });
+                                }
+                            })
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    } else {
+                        console.log(res.statusText);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        })
+    }
+
+    btnsaveedit.addEventListener("click", async function() {
+        var email = document.getElementById("email").value;
+        var status = document.getElementById("status").value;
+        var img = document.getElementById("images");
+        var user_id = user_idActive;
+        var FormDataX = new FormData();
+        FormDataX.append('status', 'updateUser');
+        FormDataX.append('user_id', user_id);
+        FormDataX.append('user_email', email);
+        FormDataX.append('old_email', email_user);
+        FormDataX.append('user_status', status);
+        FormDataX.append('user_image_data', img.files[0]);
+        var regexEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        if (email == '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'กรุณากรอกอีเมล',
+                text: 'กรุณากรอกอีเมล',
+            })
+        } else if (!regexEmail.test(email)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'กรุณากรอกอีเมลให้ถูกต้อง',
+                text: 'กรุณากรอกอีเมลให้ถูกต้อง',
+            })
+        } else {
+            try {
+                var res = await fetch('../../rest/rest.php', {
+                    method: 'POST',
+                    body: FormDataX
+                });
+                if (res.ok) {
+                    var data = await res.json();
+                    if (data.status == 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.msg,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                if (img.files[0] != undefined) {
+                                    var fileimage = URL.createObjectURL(img.files[0]);
+                                    tableItemX.cell(tableIdx, 2).data(`<div class=" flex justify-center"><img src="${fileimage}" class="w-14 h-14 rounded-full object-cover"></div>`).draw();
+                                    tableItemX.cell(tableIdx, 3).data(email).draw();
+                                    if (status == 1) {
+                                        tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">แอดมิน</span>`).draw();
+                                    } else {
+                                        tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>`).draw();
+                                    }
+                                    tableItemX.cell(tableIdx, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    modal.classList.remove("modal-open");
+                                } else {
+                                    tableItemX.cell(tableIdx, 3).data(email).draw();
+                                    if (status == 1) {
+                                        tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">แอดมิน</span>`).draw();
+                                    } else {
+                                        tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>`).draw();
+                                    }
+                                    tableItemX.cell(tableIdx, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    modal.classList.remove("modal-open");
+                                }
+                            }
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: data.msg,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                } else {
+                    console.log(res.statusText);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    });
+
+    var tableItemX = new DataTable(mytable, {
+        responsive: true,
+        "language": {
+            "lengthMenu": "แสดงข้อมูล _MENU_ แถว",
+            "zeroRecords": "ไม่พบข้อมูลที่ต้องการ",
+            "info": "แสดงหน้า _PAGE_ จาก _PAGES_",
+            "infoEmpty": "ไม่พบข้อมูลที่ต้องการ",
+            "infoFiltered": "(filtered from _MAX_ total records)",
+            "search": "ค้นหา",
+            "paginate": {
+                "first": "หน้าแรก",
+                "last": "หน้าสุดท้าย",
+                "next": "ถัดไป",
+                "previous": "ก่อนหน้า"
+            },
+        },
+        "order": [
+            [1, "asc"]
+        ],
+    });
+
+    async function editData(user_id, user_email, user_status, idx) {
+        email_user = user_email;
+        tableIdx = idx;
+        user_idActive = user_id;
+        modal.classList.add("modal-open");
+        console.log(user_id, user_email, user_status);
+        var ImageX = await getImageUser(user_id);
+        var modalcon = document.querySelector(".modal-con");
+        var modaltitle = document.getElementById("modal-title");
+        modaltitle.innerHTML = "แก้ไขข้อมูลผู้ใช้";
+        modalcon.innerHTML = ''
+        var divflex = document.createElement("div");
+        divflex.classList.add("w-full", "flex", "flex-col", "gap-3");
+        var divcard = createModal(ImageX, idx, modalcon, user_email, user_status);
+        divflex.appendChild(divcard);
+        modalcon.appendChild(divflex);
+    }
+
+    function createModal(ImageX, idx, modalcon, user_email, user_status) {
+        var divcard = document.createElement("div");
+        divcard.classList.add("w-full", "h-auto", "rounded-md", "border", "p-3", "flex", "flex-col", "justify-center", "items-center", "sm:flex-row", "gap-3");
+        var divimg = document.createElement("div");
+        divimg.classList.add("w-20", "h-20", "border-[3px]", "border-gray-400", "rounded-full", "flex-shrink-0", "border-dashed");
+        var divimg2 = document.createElement("div");
+        divimg2.classList.add("w-full", "relative", "h-full", "flex", "justify-center", "items-center", "overflow-hidden", "cursor-pointer");
+        var inputimg = document.createElement("input");
+        inputimg.classList.add("cursor-pointer", "z-20", "w-28", "h-28", "absolute", "-top-7", "opacity-0", "rounded-full");
+        inputimg.setAttribute("type", "file");
+        inputimg.setAttribute("id", "images");
+        inputimg.setAttribute("name", "images");
+        inputimg.setAttribute('onchange', `readURL(this)`);
+        inputimg.setAttribute("accept", "image/*");
+        var img = document.createElement("img");
+        img.classList.add("z-0", "w-full", "h-full", "absolute", "rounded-full", "object-cover");
+        img.setAttribute("src", "data:image/jpeg;base64," + ImageX);
+        img.setAttribute("id", "img");
+        var i = document.createElement("i");
+        i.classList.add("fa-solid", "fa-camera", "z-10", "text-white", "opacity-80");
+        divimg2.appendChild(inputimg);
+        divimg2.appendChild(img);
+        divimg2.appendChild(i);
+        divimg.appendChild(divimg2);
+        var divflex2 = document.createElement("div");
+        divflex2.classList.add("w-full", "flex", "flex-col", "sm:flex-row", "gap-3");
+        var divflex3 = document.createElement("div");
+        divflex3.classList.add("w-full", "flex", "flex-col");
+        var label = document.createElement("label");
+        label.setAttribute("for", "email");
+        label.innerHTML = "อีเมล";
+        var input = document.createElement("input");
+        input.setAttribute("type", "text");
+        input.setAttribute("id", "email");
+        input.setAttribute("class", "input input-bordered");
+        input.setAttribute("placeholder", "อีเมล");
+        input.setAttribute("value", user_email);
+        divflex3.appendChild(label);
+        divflex3.appendChild(input);
+        var divflex4 = document.createElement("div");
+        divflex4.classList.add("w-full", "flex", "flex-col");
+        var label2 = document.createElement("label");
+        label2.setAttribute("for", "status");
+        label2.innerHTML = "สถานะ";
+        var select = document.createElement("select");
+        select.setAttribute("id", "status");
+        select.setAttribute("class", "select select-bordered w-full");
+        var option1 = document.createElement("option");
+        option1.setAttribute("value", "1");
+        option1.innerHTML = "แอดมิน";
+        var option2 = document.createElement("option");
+        option2.setAttribute("value", "0");
+        option2.innerHTML = "ผู้ใช้";
+        if (user_status == 1) {
+            option1.setAttribute("selected", "selected");
+        } else {
+            option2.setAttribute("selected", "selected");
+        }
+        select.appendChild(option1);
+        select.appendChild(option2);
+        divflex4.appendChild(label2);
+        divflex4.appendChild(select);
+        divflex2.appendChild(divflex3);
+        divflex2.appendChild(divflex4);
+        divcard.appendChild(divimg);
+        divcard.appendChild(divflex2);
+        return divcard;
+    }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            var img = document.getElementById("img");
+            reader.onload = function(e) {
+                img.setAttribute("src", e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function getImageUser(user_id) {
+        var FormDataX = new FormData();
+        FormDataX.append('status', 'getImageUser');
+        FormDataX.append('user_id', user_id);
+        try {
+            var res = await fetch('../../rest/rest.php', {
+                method: 'POST',
+                body: FormDataX
+            });
+            if (res.ok) {
+                var data = await res.json();
+                return data.data;
+            } else {
+                console.log(res.statusText);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+</script>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<!-- main script file  -->
+<script src="../assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5" async></script>
+
+
+</html>

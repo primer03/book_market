@@ -3,12 +3,12 @@ require '../vendor/autoload.php';
 require '../Model/AreaModel.php';
 use Picqer\Barcode\BarcodeGeneratorPNG;
 date_default_timezone_set("Asia/Bangkok");
-// รับข้อมูลจาก JavaScript
 $area = new AreaModel();
 $areaData = json_decode($area->getItemBookByiD($_GET['b_id']),true)['data'];
-
+$receiptData = $area->get_receiptId($_GET['b_id']);
+// รับข้อมูลจาก JavaScript
 $customerName = $areaData['b_firstname'] . ' ' . $areaData['b_lastname'];
-$rentalAmount = $areaData['item_price'];
+$rentalAmount = $receiptData['r_total'];
 $shopName = $areaData['b_shop_name'];
 $zone = $areaData['area_name'];
 
@@ -23,7 +23,7 @@ $mpdf = new \Mpdf\Mpdf(['fontDir' => '../fonts/', 'fontdata' => [
 
 // สร้างรหัสบาร์โค้ด
 $generator = new BarcodeGeneratorPNG();
-$barcodeData = '123456789';  // แทนที่ด้วยข้อมูลที่ต้องการสร้างบาร์โค้ด
+$barcodeData = $receiptData['r_id'];
 $barcodeImage = $generator->getBarcode($barcodeData, $generator::TYPE_CODE_128);
 
 $html = '
@@ -96,10 +96,10 @@ $html = '
             <div class="logo">
                 <img style="width: 70px" src="https://i.imgur.com/gzvkzoJ.png" alt="Logo">
             </div>
-            <h2>ใบแจ้งชำระค่าเช่าร้านค้ารายเดือน</h2>
+            <h2>ใบเสร็จรับเงิน</h2>
         </div>
         <div class="invoice-details">
-            <p><strong>วันที่:</strong> ' . date('d/m/Y') . '</p>
+            <p><strong>วันที่:</strong> ' . date('d/m/Y',strtotime($receiptData['r_month'])) . '</p>
             <p><strong>ชื่อลูกค้า:</strong> ' . $customerName . '</p>
             <p><strong>ชื่อร้าน:</strong> ' . $shopName . '</p>
             <p><strong>โซน:</strong> ' . $zone . '</p>
@@ -115,10 +115,10 @@ $html = '
             </tr>
         </table>
         <p class="total"><strong>รวมทั้งสิ้น: ' . number_format($rentalAmount, 2) . ' บาท</strong></p>
-        <!-- <div class="barcode">
+        <div class="barcode">
             <img src="data:image/png;base64,' . base64_encode($barcodeImage) . '" alt="Barcode">
             <p class="barcode-number">Barcode Number: ' . $barcodeData . '</p>
-        </div> -->
+        </div>
     </div>
 </body>
 </html>
@@ -126,7 +126,6 @@ $html = '
 
 $mpdf->WriteHTML($html);
 
-// สร้างชื่อไฟล์ PDF ที่ไม่ซ้ำกัน
 $thaimonth = [
     '01' => 'มกราคม',
     '02' => 'กุมภาพันธ์',
@@ -141,7 +140,7 @@ $thaimonth = [
     '11' => 'พฤศจิกายน',
     '12' => 'ธันวาคม'
 ];
-$pdfFileName = 'ใบแจ้งชำระค่าเช่าร้านค้ารายเดือน_' . $shopName . '_' . $thaimonth[date('m')] . '_' . date('Y')+543 . '.pdf';
+$pdfFileName = 'ใบเสร็จรับเงิน_' . $shopName . '_' . $thaimonth[date('m')] . '_' . date('Y')+543 . '.pdf';
 
-//แสดง PDF ในเบราว์เซอร์
+// ส่งคำขอดาวน์โหลด PDF ไปยังเบราว์เซอร์
 $mpdf->Output($pdfFileName, 'D');

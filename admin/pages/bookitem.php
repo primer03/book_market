@@ -100,6 +100,7 @@ $area_data = $area->getArea();
             </div>
             <div class=" flex justify-end gap-3 mt-3">
                 <button type="button" id="btnsaveedit" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
+                <button type="button" hidden id="btnsaveeditData" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
                 <button type="button" id="btnclose" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-400 border-2 border-yellow-500">ปิด</button>
             </div>
         </div>
@@ -154,6 +155,7 @@ $area_data = $area->getArea();
                             <th>พิมพ์ใบแจ้งชำระ</th>
                             <th>พิมพ์ใบเสร็จรับเงิน</th>
                             <th>ย้ายตำแหน่งร้านค้า</th>
+                            <th>แก้ไข</th>
                             <th>ลบ</th>
                         </tr>
                     </thead>
@@ -190,19 +192,29 @@ $area_data = $area->getArea();
                                     <?php if (!empty($checkbill)) { ?>
                                         <button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
                                     <?php } else { ?>
-                                        <button class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
+                                        <button onclick="setReceipt(<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>
                                     <?php } ?>
                                 <td>
-                                    <button id="btnApprove" class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class='bx bx-printer'></i></button>
+                                    <a href="../bill.php?b_id=<?php echo $value['b_id'] ?>" target="_blank" class="py-3 inline-block px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class='bx bx-printer'></i></a>
+                                    <!-- <button onclick="printBill(<?php echo $value['b_id'] ?>,<?php echo $key ?>)" id="BtnPrintBill" class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class='bx bx-printer'></i></button> -->
                                 </td>
                                 <td>
-                                    <button class="py-3 px-4 duration-150 hover:bg-pink-700 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
+                                    <?php $checkbill = $area->get_receiptById($value['b_id'], date('m'), date('Y')); ?>
+                                    <?php if (!empty($checkbill)) { ?>
+                                        <a href="../billpay.php?b_id=<?php echo $value['b_id'] ?>" class=" inline-block py-3 px-4 duration-150 hover:bg-pink-600 text-white font-semibold bg-pink-500 rounded-lg"><i class='bx bx-printer'></i></a>
+                                        <!-- <button onclick="printBillPay(<?php echo $value['b_id'] ?>,<?php echo $key ?>)" id="BtnPrintBill" class="py-3 px-4 duration-150 hover:bg-pink-600 text-white font-semibold bg-pink-500 rounded-lg"><i class='bx bx-printer'></i></button> -->
+                                    <?php } else { ?>
+                                        <button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-printer'></i></button>
+                                    <?php } ?>
                                 </td>
                                 <td>
                                     <button onclick="changeBookItem(<?php echo $value['area_id'] ?>,<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-expand"></i></button>
                                 </td>
                                 <td>
-                                    <button class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                                    <button onclick="changeBookItemData(<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg"><i class="fa-regular fa-pen-to-square"></i></button>
+                                </td>
+                                <td>
+                                    <button onclick="deleteBookItem(<?php echo $value['b_id'] ?>,<?php echo $key ?>)" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         <?php $num++;
@@ -228,6 +240,7 @@ $area_data = $area->getArea();
     var DataXXD = [];
     var book_id = 0;
     var tableKey = 0;
+    var btnsaveeditData = document.getElementById("btnsaveeditData");
     var tableItemX = new DataTable(mytable, {
         responsive: true,
         "language": {
@@ -246,14 +259,256 @@ $area_data = $area->getArea();
         }
     });
 
+    async function printBill(b_id, key) {
+        var DataBookItem = await get_item_user(b_id);
+        var FormDataX = new FormData();
+        FormDataX.append('status', 'printBill');
+        FormDataX.append('b_id', b_id);
+        FormDataX.append('shop_name', DataBookItem.data.b_shop_name);
+        FormDataX.append('firstname', DataBookItem.data.b_firstname);
+        FormDataX.append('lastname', DataBookItem.data.b_lastname);
+        FormDataX.append('price', DataBookItem.data.item_price);
+        FormDataX.append('zone', DataBookItem.data.area_name);
+
+        tableItemX.data()[key][10] = `<button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-teal-600 rounded-lg"><i class='bx bx-loader bx-spin' ></i></button>`;
+        tableItemX.row(key).data(tableItemX.data()[key]).draw();
+        try {
+            const res = await fetch('../bill.php', {
+                method: 'POST',
+                body: FormDataX
+            })
+        } catch (error) {
+            console.log(error);
+        }
+        setTimeout(() => {
+            tableItemX.data()[key][10] = `<button class="py-3 px-4 duration-150 hover:bg-teal-700 text-white font-semibold bg-teal-600 rounded-lg"><i class='bx bx-printer' ></i></button>`;
+            tableItemX.row(key).data(tableItemX.data()[key]).draw();
+        }, 2000);
+    }
+
+    async function setReceipt(b_id,tableIDX) {
+        var data = await get_item_user(b_id);
+        Swal.fire({
+            title: "ใส่จำนวนเงินที่ชำระ",
+            input: "number",
+            inputAttributes: {
+                autocapitalize: "off",
+            },
+            inputValue: data.data.item_price,
+            showCancelButton: true,
+            confirmButtonText: "ตกลง",
+            cancelButtonText: "ยกเลิก",
+            showLoaderOnConfirm: true,
+            preConfirm: async (login) => {
+                var FormDataX = new FormData();
+                FormDataX.append('status', 'setReceipt');
+                FormDataX.append('b_id', b_id);
+                FormDataX.append('price', login);
+                try {
+                    const res = await fetch('../../rest/rest.php', {
+                        method: 'POST',
+                        body: FormDataX
+                    })
+                    if (res.ok) {
+                        const data = await res.json()      
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                tableItemX.data()[tableIDX][9] = `<button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-green-600 rounded-lg"><i class='bx bx-check'></i></button>`;
+                tableItemX.data()[tableIDX][11] = `<a href="../billpay.php?b_id=${b_id}" class=" inline-block py-3 px-4 duration-150 hover:bg-pink-600 text-white font-semibold bg-pink-500 rounded-lg"><i class='bx bx-printer'></i></a>`;
+                tableItemX.row(tableIDX).data(tableItemX.data()[tableIDX]).draw();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'บันทึกข้อมูลสำเร็จ',
+                    text: 'บันทึกข้อมูลสำเร็จ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3085d6',
+                })
+            }
+        });
+    }
+    async function printBillPay(b_id,tableIDX) {
+        var DataBookItem = await get_item_user(b_id);
+        var receiptData = await get_receiptId(DataBookItem.data.b_id);
+        var FormDataX = new FormData();
+        FormDataX.append('status', 'printBillPay');
+        FormDataX.append('b_id', b_id);
+        FormDataX.append('shop_name', DataBookItem.data.b_shop_name);
+        FormDataX.append('firstname', DataBookItem.data.b_firstname);
+        FormDataX.append('lastname', DataBookItem.data.b_lastname);
+        FormDataX.append('price', receiptData.data.r_total);
+        FormDataX.append('zone', DataBookItem.data.area_name);
+        FormDataX.append('date', receiptData.data.r_month);
+        FormDataX.append('receipt_id', receiptData.data.r_id);
+        tableItemX.data()[tableIDX][11] = `<button disabled class="py-3 opacity-50 px-4 duration-150 text-white font-semibold bg-pink-600 rounded-lg"><i class='bx bx-loader bx-spin' ></i></button>`;
+        tableItemX.row(tableIDX).data(tableItemX.data()[tableIDX]).draw();
+        try {
+            const res = await fetch('../billpay.php', {
+                method: 'POST',
+                body: FormDataX
+            })
+        } catch (error) {
+            console.log(error);
+        }
+        setTimeout(() => {
+            tableItemX.data()[tableIDX][11] = `<button onclick="printBillPay(${b_id},${tableIDX})" class="py-3 px-4 duration-150 hover:bg-pink-600 text-white font-semibold bg-pink-500 rounded-lg"><i class='bx bx-printer' ></i></button>`;
+            tableItemX.row(tableIDX).data(tableItemX.data()[tableIDX]).draw();
+        }, 2000);
+    }
+
+    async function get_receiptId(b_id){
+        var FormDataX = new FormData();
+        FormDataX.append('status', 'get_receiptId');
+        FormDataX.append('b_id', b_id);
+        try {
+            const res = await fetch('../../rest/rest.php', {
+                method: 'POST',
+                body: FormDataX
+            })
+            if (res.ok) {
+                const data = await res.json()
+                return data;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function deleteBookItem(b_id, tableIDX) {
+        Swal.fire({
+            title: 'คุณต้องการลบข้อมูลการจองใช่หรือไม่?',
+            text: "คุณต้องการลบข้อมูลการจองใช่หรือไม่",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่',
+            cancelButtonText: 'ไม่ใช่',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                var FormDatax = new FormData();
+                FormDatax.append('status', 'deleteBookItem');
+                FormDatax.append('b_id', b_id);
+                try {
+                    const res = await fetch('../../rest/rest.php', {
+                        method: 'POST',
+                        body: FormDatax
+                    })
+                    if (res.ok) {
+                        const data = await res.json()
+                        if (data.status == 'success') {
+                            tableItemX.row(tableIDX).remove().draw();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ลบข้อมูลสำเร็จ',
+                                text: 'ลบข้อมูลสำเร็จ',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#3085d6',
+                            })
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ลบข้อมูลไม่สำเร็จ',
+                                text: 'ลบข้อมูลไม่สำเร็จ',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#3085d6',
+                            })
+                        }
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        })
+    }
+
+    btnsaveeditData.addEventListener("click", async function() {
+        var b_shop_name = document.getElementById("b_shop_name").value;
+        var b_firstname = document.getElementById("b_firstname").value;
+        var b_lastname = document.getElementById("b_lastname").value;
+        var b_email = document.getElementById("b_email").value;
+        var b_phone = document.getElementById("b_phone").value;
+        if (b_shop_name != "" && b_firstname != "" && b_lastname != "" && b_email != "" && b_phone != "") {
+            var regEmail = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,})$/;
+            var thaiPhoneNumberRegex = /^0[0-9]{2}-[0-9]{7}$/;
+            if (regEmail.test(b_email)) {
+                if (thaiPhoneNumberRegex.test(b_phone)) {
+                    var FormDatax = new FormData();
+                    FormDatax.append('status', 'editBookItem');
+                    FormDatax.append('b_id', book_id);
+                    FormDatax.append('b_shop_name', b_shop_name);
+                    FormDatax.append('b_firstname', b_firstname);
+                    FormDatax.append('b_lastname', b_lastname);
+                    FormDatax.append('b_email', b_email);
+                    FormDatax.append('b_phone', b_phone);
+                    try {
+                        const res = await fetch('../../rest/rest.php', {
+                            method: 'POST',
+                            body: FormDatax
+                        })
+                        if (res.ok) {
+                            const data = await res.json()
+                            if (data.status == 'success') {
+                                var row = tableItemX.data()[tableKey];
+                                row[1] = b_shop_name;
+                                row[2] = b_firstname + " " + b_lastname;
+                                row[5] = b_email;
+                                row[6] = b_phone;
+                                tableItemX.row(tableKey).data(row).draw();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'แก้ไขข้อมูลสำเร็จ',
+                                    text: 'แก้ไขข้อมูลสำเร็จ',
+                                    confirmButtonText: 'ตกลง',
+                                    confirmButtonColor: '#3085d6',
+                                }).then(async (result) => {
+                                    modal.classList.remove("modal-open");
+                                })
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'แก้ไขข้อมูลไม่สำเร็จ',
+                                    text: 'แก้ไขข้อมูลไม่สำเร็จ',
+                                    confirmButtonText: 'ตกลง',
+                                    confirmButtonColor: '#3085d6',
+                                })
+                            }
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เบอร์โทรไม่ถูกต้อง',
+                        text: 'กรุณากรอกเบอร์โทรให้ถูกต้อง',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3085d6',
+                    })
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'อีเมลไม่ถูกต้อง',
+                    text: 'กรุณากรอกอีเมลให้ถูกต้อง',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3085d6',
+                })
+            }
+        }
+    });
+
     btnclose.addEventListener("click", function() {
         modal.classList.remove("modal-open");
     });
 
     btnsaveedit.addEventListener("click", async function() {
         if (DataSelect.length != 0) {
-            console.log(DataSelect);
-            console.log(book_id);
             var FormDatax = new FormData();
             FormDatax.append('status', 'changeBookItem');
             FormDatax.append('b_id', book_id);
@@ -277,7 +532,7 @@ $area_data = $area->getArea();
                         var row = tableItemX.data()[tableKey];
                         row[3] = DataSelect.area_name;
                         row[4] = keyidx
-                        row[12] = `<button onclick="changeBookItem(${DataSelect.area_id},${book_id},${tableKey})" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>`; 
+                        row[12] = `<button onclick="changeBookItem(${DataSelect.area_id},${book_id},${tableKey})" class="py-3 px-4 duration-150 hover:bg-orange-600 text-white font-semibold bg-orange-500 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>`;
                         tableItemX.row(tableKey).data(row).draw();
                         Swal.fire({
                             icon: 'success',
@@ -313,6 +568,9 @@ $area_data = $area->getArea();
     });
 
     async function changeBookItem(area_id, b_id, tableIDX) {
+        var btnsaveeditData = document.getElementById("btnsaveeditData");
+        btnsaveeditData.hidden = true;
+        btnsaveedit.hidden = false;
         tableKey = tableIDX;
         book_id = b_id;
         DataSelect = [];
@@ -354,7 +612,6 @@ $area_data = $area->getArea();
         var divgrid = document.createElement("div");
         divgrid.setAttribute("class", "animate-fadeIn grid grid-cols-3 gap-3");
         divgrid.setAttribute("id", "divgrid");
-        console.log(dataX);
         DataXXD = dataX.data;
         for ([key, value] of Object.entries(dataX.data)) {
             var div = document.createElement("div");
@@ -415,7 +672,6 @@ $area_data = $area->getArea();
                 idxkevActive = index;
             }
         });
-        // console.log(DataXXD)
         for ([key, value] of Object.entries(DataXXD)) {
             if (value.item_id == item_id) {
                 if (value.item_active > 0) {
@@ -455,6 +711,116 @@ $area_data = $area->getArea();
             return data
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    async function changeBookItemData(b_id, tableIDX) {
+        tableKey = tableIDX;
+        book_id = b_id;
+        var btnsaveeditData = document.getElementById("btnsaveeditData");
+        btnsaveeditData.hidden = false;
+        btnsaveedit.hidden = true;
+        var Book = await getBookItemById(b_id);
+        var DataBook = Book.data[0]
+        var modalcon = document.querySelector(".modal-con");
+        modalcon.innerHTML = ''
+        var modaltitle = document.getElementById("modal-title");
+        modaltitle.innerHTML = "แก้ไขข้อมูล";
+        var divflex = document.createElement("div");
+        divflex.setAttribute("class", "flex flex-col gap-3");
+        var div1 = document.createElement("div");
+        var labelselect = document.createElement("label");
+        labelselect.setAttribute("class", "text-gray-700");
+        labelselect.innerHTML = "ชื่อร้าน";
+        var input = document.createElement("input");
+        input.setAttribute("id", "b_shop_name");
+        input.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        input.setAttribute("type", "text");
+        input.setAttribute("value", DataBook.b_shop_name);
+        div1.appendChild(labelselect);
+        div1.appendChild(input);
+        divflex.appendChild(div1);
+        var div2 = document.createElement("div");
+        div2.setAttribute("class", "flex gap-3");
+        var div2_1 = document.createElement("div");
+        var labelselect2_1 = document.createElement("label");
+        labelselect2_1.setAttribute("class", "text-gray-700");
+        labelselect2_1.innerHTML = "ชื่อ";
+        var input2_1 = document.createElement("input");
+        input2_1.setAttribute("id", "b_firstname");
+        input2_1.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        input2_1.setAttribute("type", "text");
+        input2_1.setAttribute("value", DataBook.b_firstname);
+        div2_1.appendChild(labelselect2_1);
+        div2_1.appendChild(input2_1);
+        div2.appendChild(div2_1);
+        var div2_2 = document.createElement("div");
+        var labelselect2_2 = document.createElement("label");
+        labelselect2_2.setAttribute("class", "text-gray-700");
+        labelselect2_2.innerHTML = "นามสกุล";
+        var input2_2 = document.createElement("input");
+        input2_2.setAttribute("id", "b_lastname");
+        input2_2.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        input2_2.setAttribute("type", "text");
+        input2_2.setAttribute("value", DataBook.b_lastname);
+        div2_2.appendChild(labelselect2_2);
+        div2_2.appendChild(input2_2);
+        div2.appendChild(div2_2);
+        divflex.appendChild(div2);
+        var div3 = document.createElement("div");
+        var labelselect3 = document.createElement("label");
+        labelselect3.setAttribute("class", "text-gray-700");
+        labelselect3.innerHTML = "อีเมล";
+        var input3 = document.createElement("input");
+        input3.setAttribute("id", "b_email");
+        input3.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        input3.setAttribute("type", "text");
+        input3.setAttribute("value", DataBook.b_email);
+        div3.appendChild(labelselect3);
+        div3.appendChild(input3);
+        divflex.appendChild(div3);
+        var div4 = document.createElement("div");
+        var labelselect4 = document.createElement("label");
+        labelselect4.setAttribute("class", "text-gray-700");
+        labelselect4.innerHTML = "เบอร์โทร";
+        var input4 = document.createElement("input");
+        input4.setAttribute("id", "b_phone");
+        input4.setAttribute("class", "w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:border-blue-500");
+        input4.setAttribute("type", "text");
+        input4.setAttribute("value", DataBook.b_phone);
+        div4.appendChild(labelselect4);
+        div4.appendChild(input4);
+        divflex.appendChild(div4);
+        modalcon.appendChild(divflex);
+
+        modal.classList.add("modal-open");
+    }
+
+    async function getBookItemById(b_id) {
+        var FormDatax = new FormData();
+        FormDatax.append('status', 'getBookItemById');
+        FormDatax.append('b_id', b_id);
+        const res = await fetch('../../rest/rest.php', {
+            method: 'POST',
+            body: FormDatax
+        })
+        if (res.ok) {
+            const data = await res.json()
+            return data
+        }
+    }
+
+    async function get_item_user(id) {
+        var data = new FormData();
+        data.append('status', 'getItemBookByiD');
+        data.append('b_id', id);
+        var response = await fetch('../../rest/rest.php', {
+            method: 'POST',
+            body: data
+        });
+        if (response.ok) {
+            var res = await response.json();
+            return res;
         }
     }
 

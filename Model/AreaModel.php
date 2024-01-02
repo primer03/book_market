@@ -106,6 +106,15 @@ class AreaModel
         return $stmt->fetchAll();
     }
 
+    public function getItemBookByiD($id)
+    {
+        $sql = "SELECT * FROM book_area  as ba , areas as area, area_item as item WHERE ba.b_item_id=item.item_id AND item.item_area_id=area.area_id AND ba.b_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$id]);
+        $reslut =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return json_encode(["status" => "success", "data" => $reslut[0]]);
+    }
+
     public function getitemUserActive($id)
     {
         $sql = "SELECT * FROM book_area  as ba, users as u , areas as area, area_item as item WHERE ba.b_user_id=u.user_id AND ba.b_item_id=item.item_id AND item.item_area_id=area.area_id AND item.item_id = '" . $id . "'";
@@ -478,5 +487,73 @@ class AreaModel
         } else {
             return json_encode(["status" => "error", "msg" => "error"]);
         }
+    }
+
+    public function updateBookItemById($b_id,$b_shop_name,$b_firstname,$b_lastname,$b_email,$b_phone)
+    {
+        $sql = "UPDATE book_area SET b_shop_name = ?, b_firstname = ?, b_lastname = ?, b_email = ?, b_phone = ? WHERE b_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$b_shop_name,$b_firstname,$b_lastname,$b_email,$b_phone,$b_id]);
+        if ($stmt) {
+            return json_encode(["status" => "success", "msg" => "success"]);
+        } else {
+            return json_encode(["status" => "error", "msg" => "error"]);
+        }
+    }
+
+    public function deleteBookItemById($b_id)
+    {
+        $sql = "SELECT * FROM book_area WHERE b_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$b_id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $item_id = $result[0]['b_item_id'];
+        $sql1 = "DELETE FROM book_area WHERE b_id = ?";
+        $stmt1 = $this->db->connect()->prepare($sql1);
+        $stmt1->execute([$b_id]);
+        if ($stmt1) {
+            $sql2 = "UPDATE area_item SET item_active = '0' WHERE item_id = ?";
+            $stmt2 = $this->db->connect()->prepare($sql2);
+            $stmt2->execute([$item_id]);
+            if ($stmt2) {
+                return json_encode(["status" => "success", "msg" => "success"]);
+            } else {
+                return json_encode(["status" => "error", "msg" => "error"]);
+            }
+        } else {
+            return json_encode(["status" => "error", "msg" => "error"]);
+        }
+    }
+
+    public function insert_receipt($r_id,$r_book_id, $r_month, $r_total)
+    {
+        $sql = "INSERT INTO receipt (r_id,r_book_id, r_month, r_total) VALUES (?,?,?,?)";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$r_id,$r_book_id, $r_month, $r_total]);
+        if ($stmt) {
+            return json_encode(["status" => "success", "msg" => "success"]);
+        } else {
+            return json_encode(["status" => "error", "msg" => "error"]);
+        }
+    }
+
+    public function get_receiptId($id)
+    {
+        $sql = "SELECT * FROM receipt WHERE r_book_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if($result != null){
+            return $result[0];
+        }else{
+            return null;
+        }
+    }
+
+    public function get_receiptAll(){
+        $sql = "SELECT * FROM receipt as r, book_area as ba, users as u, area_item as item, areas as area WHERE r.r_book_id = ba.b_id AND ba.b_user_id = u.user_id AND ba.b_item_id = item.item_id AND item.item_area_id = area.area_id ORDER BY r.r_month ASC";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

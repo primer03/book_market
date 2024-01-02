@@ -113,5 +113,51 @@ if (isset($_POST['status'])) {
     $b_id = $_POST['b_id'];
     $item_id = $_POST['item_id'];
     echo $area->update_bookItem($item_id, $b_id);
+  } elseif ($_POST['status'] == 'editBookItem') {
+    $b_id = $_POST['b_id'];
+    $shopname = $_POST['b_shop_name'];
+    $firstname = $_POST['b_firstname'];
+    $lastname = $_POST['b_lastname'];
+    $email = $_POST['b_email'];
+    $phone = $_POST['b_phone'];
+    echo $area->updateBookItemById($b_id, $shopname, $firstname, $lastname, $email, $phone);
+  } elseif ($_POST['status'] == 'deleteBookItem') {
+    $b_id = $_POST['b_id'];
+    echo $area->deleteBookItemById($b_id);
+  } elseif ($_POST['status'] == 'getItemBookByiD') {
+    $b_id = $_POST['b_id'];
+    echo $area->getItemBookByiD($b_id);
+  } elseif ($_POST['status'] == 'setReceipt') {
+    $b_id = $_POST['b_id'];
+    $r_id = rand(100000000, 999999999);
+    $price = $_POST['price'];
+    date_default_timezone_set("Asia/Bangkok");
+    $date = date("Y-m-d");
+    echo $area->insert_receipt($r_id, $b_id, $date, $price);
+  } elseif ($_POST['status'] == 'get_receiptId') {
+    $b_id = $_POST['b_id'];
+    echo json_encode(['status' => 'success', 'data' => $area->get_receiptId($b_id)]);
+  } elseif ($_POST['status'] == 'getImageUser') {
+    $user_id = $_POST['user_id'];
+    echo json_encode(['status' => 'success', 'data' => $user->get_image_user($user_id)]);
+  } elseif ($_POST['status'] == 'updateUser') {
+    $user_id = $_POST['user_id'];
+    $user_email = $_POST['user_email'];
+    $old_email = $_POST['old_email'];
+    $user_status = $_POST['user_status'];
+    $user_image_data;
+    if (isset($_FILES['user_image_data'])) {
+      if ($_FILES['user_image_data']['size'] < 1048576 * 4) {
+        $user_image_data = addslashes(file_get_contents($_FILES['user_image_data']['tmp_name']));
+      } else {
+        echo json_encode(['status' => 'error', 'msg' => 'ขนาดไฟล์ใหญ่เกินไป']);
+      }
+    } else {
+      $user_image_data = null;
+    }
+    echo $user->update_user($user_id, $user_email, $old_email, $user_status, $user_image_data);
+  }elseif ($_POST['status'] == 'deleteUser') {
+    $user_id = $_POST['user_id'];
+    echo $user->delete_user($user_id);
   }
 }

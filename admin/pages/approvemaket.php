@@ -225,15 +225,20 @@ $area_data = $area->getArea();
                     if (SendMail.status == 'success') {
                         console.log('success');
                         tableItemX.row(idx - 1).remove().draw();
-                        var TableMyData = tableItemX.rows().data();
+                        var TableMyData = tableItemX.data();
                         TableMyData.each(function(value, index) {
+                            console.log(value);
+                            var matches = value[9].match(/NotApprove\((\d+),(\d+)\)/);
+                            console.log(matches);
                             if (index >= idx - 1) {
                                 tableItemX.cell(index, 0).data(index + 1).draw();
+                                tableItemX.cell(index, 8).data('<button onclick="Approve(' + matches[1] + ',' + (index + 1) + ')" id="btnApprove" class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class="fa-regular fa-circle-check"></i></button>').draw();
+                                tableItemX.cell(index, 9).data('<button onclick="NotApprove(' + matches[1] + ',' + (index + 1) + ')" class="py-3 px-4 duration-150 hover:bg-red-700 text-white font-semibold bg-red-600 rounded-lg"><i class="fa-regular fa-circle-xmark"></i></button>').draw();
                             }
                         });
                         allowOutsideClick: () => !Swal.isLoading()
                     }
-                }else{
+                } else {
                     Swal.showValidationMessage(
                         `กรุณากรอกเหตุผลที่ไม่อนุมัติ`
                     )
@@ -286,10 +291,15 @@ $area_data = $area->getArea();
                 if (SendMail.status == 'success') {
                     console.log('success');
                     tableItemX.row(idx - 1).remove().draw();
-                    var TableMyData = tableItemX.rows().data();
+                    var TableMyData = tableItemX.data();
                     TableMyData.each(function(value, index) {
+                        console.log(value);
+                        var matches = value[8].match(/Approve\((\d+),(\d+)\)/);
+                        console.log(matches);
                         if (index >= idx - 1) {
                             tableItemX.cell(index, 0).data(index + 1).draw();
+                            tableItemX.cell(index, 8).data('<button onclick="Approve(' + matches[1] + ',' + (index + 1) + ')" id="btnApprove" class="py-3 px-4 duration-150 hover:bg-green-700 text-white font-semibold bg-green-600 rounded-lg"><i class="fa-regular fa-circle-check"></i></button>').draw();
+                            tableItemX.cell(index, 9).data('<button onclick="NotApprove(' + matches[1] + ',' + (index + 1) + ')" class="py-3 px-4 duration-150 hover:bg-red-700 text-white font-semibold bg-red-600 rounded-lg"><i class="fa-regular fa-circle-xmark"></i></button>').draw();
                         }
                     });
                     Swal.fire({

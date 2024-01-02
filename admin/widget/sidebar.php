@@ -10,7 +10,7 @@
     <hr class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
     <?php
     // echo $page;
-    $pageDat = ['แดชบอร์ด', 'จัดการข้อมูลพื้นที่', 'จัดการข้อมูลพื้นที่ร้านค้า', 'จัดการอนุมัติการจองร้านค้า', 'จัดการจองร้านค้า'];
+    $pageDat = ['แดชบอร์ด', 'จัดการข้อมูลพื้นที่', 'จัดการข้อมูลพื้นที่ร้านค้า', 'จัดการอนุมัติการจองร้านค้า', 'จัดการจองร้านค้า', 'ประวัติการชำระ', 'จัดการข้อมูลผู้ใช้'];
     $bg_active = ['', '', '', '', ''];
     $bg_gd_active = ['', '', '', '', ''];
     $icon_active = ['', '', '', '', ''];
@@ -31,6 +31,8 @@
     $areaitempage = '';
     $approvemaket = '';
     $pageBookItem = '';
+    $pagehistory = '';
+    $pageDataUser = '';
     if ($page == 'แดชบอร์ด') {
         $dashboard = 'index.php';
         $logout = '../rest/rest.php?logout=logout';
@@ -38,6 +40,8 @@
         $areaitempage = 'pages/areaitem.php';
         $approvemaket = 'pages/approvemaket.php';
         $pageBookItem = 'pages/bookitem.php';
+        $pagehistory = 'pages/billhistory.php';
+        $pageDataUser = 'pages/datauser.php';
     } elseif ($page == 'จัดการข้อมูลพื้นที่') {
         $dashboard = '../index.php';
         $logout = '../../rest/rest.php?logout=logout';
@@ -45,6 +49,8 @@
         $areaitempage = '../pages/areaitem.php';
         $approvemaket = '../pages/approvemaket.php';
         $pageBookItem = '../pages/bookitem.php';
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
     } elseif ($page == 'จัดการข้อมูลพื้นที่ร้านค้า') {
         $dashboard = '../index.php';
         $logout = '../../rest/rest.php?logout=logout';
@@ -52,20 +58,44 @@
         $areaitempage = '../pages/areaitem.php';
         $approvemaket = '../pages/approvemaket.php';
         $pageBookItem = '../pages/bookitem.php';
-    }elseif($page == 'จัดการอนุมัติการจองร้านค้า'){
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
+    } elseif ($page == 'จัดการอนุมัติการจองร้านค้า') {
         $dashboard = '../index.php';
         $logout = '../../rest/rest.php?logout=logout';
         $areapage = '../pages/areatable.php';
         $areaitempage = '../pages/areaitem.php';
         $approvemaket = '../pages/approvemaket.php';
         $pageBookItem = '../pages/bookitem.php';
-    }elseif($page == 'จัดการจองร้านค้า'){
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
+    } elseif ($page == 'จัดการจองร้านค้า') {
         $dashboard = '../index.php';
         $logout = '../../rest/rest.php?logout=logout';
         $areapage = '../pages/areatable.php';
         $areaitempage = '../pages/areaitem.php';
         $approvemaket = '../pages/approvemaket.php';
         $pageBookItem = '../pages/bookitem.php';
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
+    } elseif ($page == 'ประวัติการชำระ') {
+        $dashboard = '../index.php';
+        $logout = '../../rest/rest.php?logout=logout';
+        $areapage = '../pages/areatable.php';
+        $areaitempage = '../pages/areaitem.php';
+        $approvemaket = '../pages/approvemaket.php';
+        $pageBookItem = '../pages/bookitem.php';
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
+    }elseif ($page == 'จัดการข้อมูลผู้ใช้') {
+        $dashboard = '../index.php';
+        $logout = '../../rest/rest.php?logout=logout';
+        $areapage = '../pages/areatable.php';
+        $areaitempage = '../pages/areaitem.php';
+        $approvemaket = '../pages/approvemaket.php';
+        $pageBookItem = '../pages/bookitem.php';
+        $pagehistory = '../pages/billhistory.php';
+        $pageDataUser = '../pages/datauser.php';
     }
     // print_r($bg_active);
     ?>
@@ -113,6 +143,22 @@
                         <i class='bx bx-store <?php echo $icon_active[4] ?>'></i>
                     </div>
                     <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">จัดการจองร้านค้า</span>
+                </a>
+            </li>
+            <li class="mt-0.5 w-full">
+                <a class="py-2.7  <?php echo $bg_active[5] ?> text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" href="<?php echo $pagehistory ?>">
+                    <div class="shadow-soft-2xl <?php echo $bg_gd_active[5] ?> mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center fill-current stroke-0 text-center xl:p-2.5">
+                        <i class='bx bx-receipt <?php echo $icon_active[5] ?>'></i>
+                    </div>
+                    <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">ประวัติการชำระ</span>
+                </a>
+            </li>
+            <li class="mt-0.5 w-full">
+                <a class="py-2.7  <?php echo $bg_active[6] ?> text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" href="<?php echo $pageDataUser ?>">
+                    <div class="shadow-soft-2xl <?php echo $bg_gd_active[6] ?> mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center fill-current stroke-0 text-center xl:p-2.5">
+                        <i class="fa-solid fa-user-pen <?php echo $icon_active[6] ?> text-xs"></i>
+                    </div>
+                    <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">จัดการข้อมูลผู้ใช้</span>
                 </a>
             </li>
 
