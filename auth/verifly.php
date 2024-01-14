@@ -27,6 +27,7 @@ if (!isset($_SESSION['user_emailverifly'])) {
                         <input type="number" name="verifly" placeholder="Code" class=" input w-full input-bordered input-primary" required />
                         <button type="submit" id="btnverifly" class="p-3 rounded-md duration-150 bg-violet-500 text-white hover:bg-violet-700">ยืนยัน</button>
                     </form>
+                    <div id="NewPassword"></div>
                     <!-- <form id="newpassword" class=" flex flex-col gap-3" >
                         <input type="password" name="newpassword" placeholder="New Password" class=" input w-full input-bordered input-primary" />
                         <input type="password" name="newpassword2" placeholder="Confirm Password" class=" input w-full input-bordered input-primary" />
@@ -61,7 +62,8 @@ if (!isset($_SESSION['user_emailverifly'])) {
                 verifly.disabled = true;
                 verifly.value = va
                 btn.disabled = true;
-                veriflyContainer.innerHTML += `<form id="newpassword" class=" flex flex-col gap-3" >
+                var NewPassword = document.querySelector('#NewPassword');
+                NewPassword.innerHTML += `<form id="newpassword" class=" flex flex-col gap-3" >
                         <input type="password" name="newpassword" placeholder="New Password" class=" input w-full input-bordered input-primary" />
                         <input type="password" name="newpassword2" placeholder="Confirm Password" class=" input w-full input-bordered input-primary" />
                         <button type="submit" class="p-3 rounded-md duration-150 bg-violet-500 text-white hover:bg-violet-700">ยืนยัน</button>

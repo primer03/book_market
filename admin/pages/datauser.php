@@ -7,9 +7,15 @@ if (!isset($_COOKIE['login'])) {
 } else {
     $user = new UserModel();
     $userdata = $user->get_cookie($_COOKIE['login']);
-    if (isset($_SESSION['user_status'])) {
-        if ($_SESSION['user_status'] == 0) {
-            header('location: ../index.php');
+    if ($userdata == 0) {
+        setcookie('login', '', time() - 3600, '/');
+        session_destroy();
+        header('location: ../index.php');
+    } else {
+        if (isset($_SESSION['user_status'])) {
+            if ($_SESSION['user_status'] == 0) {
+                header('location: ../index.php');
+            }
         }
     }
 }
@@ -26,8 +32,8 @@ $page = 'จัดการข้อมูลผู้ใช้'
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../dist/output.css">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Soft UI Dashboard Tailwind</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/gzvkzoJ.png" />
+    <title>ระบบจัดการพื้นที่ขาย</title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->
@@ -130,7 +136,36 @@ sort($DescUserData);
             <div class=" flex justify-end gap-3 mt-3">
                 <button type="button" id="btnsaveedit" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
                 <button type="button" hidden id="btnsaveeditData" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
+                <button type="button" hidden id="BtnSaveEditSelect" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700">บันทึก</button>
                 <button type="button" id="btnclose" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-400 border-2 border-yellow-500">ปิด</button>
+            </div>
+        </div>
+    </div>
+</dialog>
+<dialog id="my_modal_2" class="modal">
+    <div class="modal-box">
+        <h3 id="modal-titlex" class="font-bold text-lg"></h3>
+        <div class="mt-3">
+            <div class="modal-conx">
+                <!-- <div class="flex w-full gap-3 mb-3">
+                    <div class="flex gap-2 justify-center items-center">
+                        <div class=" w-5 h-5 rounded-sm border-2 border-yellow-400"></div>
+                        <p>รออนุมัติ</p>
+                    </div>
+                    <div class="flex gap-2 justify-center items-center">
+                        <div class=" w-5 h-5 rounded-sm border-2 border-green-400"></div>
+                        <p>อนุมัติแล้ว</p>
+                    </div>
+                </div> -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class=" border flex justify-center items-center flex-col shadow-md h-32 rounded-lg">
+                        <p class=" font-semibold text-4xl">A</p>
+                        <p>ตำแหน่งที่ 2</p>
+                    </div>
+                </div>
+            </div>
+            <div class=" flex justify-end gap-3 mt-3">
+                <button type="button" id="btnclosex" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-400 border-2 border-yellow-500">ปิด</button>
             </div>
         </div>
     </div>
@@ -142,9 +177,13 @@ sort($DescUserData);
         <!-- Navbar -->
         <?php include_once "../widget/navbar.php" ?>
         <div class="w-full px-6 py-6 mx-auto">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-2xl font-bold">จัดการข้อมูลผู้ใช้</h3>
-                <button type="button" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700" onclick="addData()"><i class="fa-solid fa-plus"></i> เพิ่มข้อมูล</button>
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-3">
+                <h3 class="text-2xl font-bold flex-shrink-0">จัดการข้อมูลผู้ใช้</h3>
+                <div class=" flex flex-col sm:flex-row gap-2 w-full flex-wrap justify-end">
+                    <button type="button" class="py-3 px-8 duration-200 hover:bg-green-700 hover:text-white rounded-lg text-green-700 border-2 border-green-700" onclick="addData()"><i class="fa-solid fa-plus"></i> เพิ่มข้อมูล</button>
+                    <button type="button" id="BtnSelectEdit" class="py-3 px-8 duration-200 hover:bg-yellow-500 hover:text-white rounded-lg text-yellow-500 border-2 border-yellow-500"><i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูล</button>
+                    <button type="button" id="BtnDeleteSelect" class="py-3 px-8 duration-200 hover:bg-red-700 hover:text-white rounded-lg text-red-700 border-2 border-red-700"><i class="fa-solid fa-trash"></i> ลบข้อมูล</button>
+                </div>
             </div>
             <!-- content -->
             <div class="w-full animate-fadeIn bg-white p-3 rounded-lg shadow-lg">
@@ -156,6 +195,7 @@ sort($DescUserData);
                             <th>รูป</th>
                             <th>อีเมล</th>
                             <th>สถานะ</th>
+                            <th>ร้านค้าที่จอง</th>
                             <th>แก้ไข</th>
                             <th>ลบ</th>
                         </tr>
@@ -179,6 +219,9 @@ sort($DescUserData);
                                         <?php } else { ?>
                                             <span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>
                                         <?php } ?>
+                                    </td>
+                                    <td>
+                                        <button id="viewmarket" onclick="viewMarket(<?php echo $value['user_id']; ?>)" class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class="fa-solid fa-store"></i></button>
                                     </td>
                                     <td>
                                         <button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('<?= $value['user_id'] ?>','<?= $value['user_email'] ?>','<?= $value['user_status'] ?>',<?= $num ?>)">
@@ -211,6 +254,309 @@ sort($DescUserData);
     var email_user = '';
     var tableIdx = 0;
     var btnsaveeditData = document.getElementById("btnsaveeditData");
+    var BtnSelectEdit = document.querySelector("#BtnSelectEdit");
+    var BtnSaveEditSelect = document.querySelector("#BtnSaveEditSelect");
+    var IdxData = [];
+    var BtnDeleteSelect = document.querySelector("#BtnDeleteSelect");
+    var btnclosex = document.querySelector("#btnclosex");
+    var modalx = document.querySelector("#my_modal_2");
+
+    btnclosex.addEventListener("click", function() {
+        modalx.classList.remove("modal-open");
+    })
+
+    async function viewMarket(userID) {
+        modalx.classList.add("modal-open");
+        var modaltitlex = document.querySelector("#modal-titlex");
+        var modalconx = document.querySelector(".modal-conx");
+        modaltitlex.innerHTML = "ร้านค้าที่จอง";
+        modalconx.innerHTML = '';
+        modalconx.innerHTML += `<div class="flex w-full gap-3 mb-3">
+                    <div class="flex gap-2 justify-center items-center">
+                        <div class=" w-5 h-5 rounded-sm border-2 border-yellow-400"></div>
+                        <p>รออนุมัติ</p>
+                    </div>
+                    <div class="flex gap-2 justify-center items-center">
+                        <div class=" w-5 h-5 rounded-sm border-2 border-green-400"></div>
+                        <p>อนุมัติแล้ว</p>
+                    </div>
+                </div>`
+        var formDataXD = new FormData();
+        formDataXD.append('user_id', userID);
+        formDataXD.append('status', 'getMarketData');
+        try {
+            var res = await fetch('../../rest/rest.php', {
+                method: 'POST',
+                body: formDataXD
+            });
+            if (res.ok) {
+                var data = await res.json();
+                modalconx.innerHTML += `<div id="divgirdXD" class="grid grid-cols-3 gap-3">`
+                if (data.data != null) {
+                    for([key,value] of data.data.entries()){
+                        $border_color = value.item_active == 1 ? 'border-yellow-400' : 'border-green-400';
+                        var divgirdXD =modalconx.querySelector("#divgirdXD");
+                        divgirdXD.innerHTML += `<div class="animate-zoom-animation border-2 ${$border_color} flex justify-center items-center flex-col shadow-md h-32 rounded-lg">
+                        <p class=" font-semibold text-4xl">${value.area_name}</p>
+                        <p>ตำแหน่งที่ ${value.item_position}</p>
+                    </div>`
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    BtnDeleteSelect.addEventListener("click", async function() {
+        Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณต้องการลบข้อมูลที่เลือกไว้หรือไม่",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ลบข้อมูล',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                var checkbox = document.querySelectorAll(".checkbox");
+                var check = false;
+                var checkx = true;
+                var count = 0;
+                var UserData = await getUserJS();
+                IdxData = [];
+                checkbox.forEach((e, index) => {
+                    if (e.checked) {
+                        UserData.forEach((value, key) => {
+                            if (index == key) {
+                                check = true;
+                                IdxData.push({
+                                    index: index,
+                                    user_id: value.user_id,
+                                    user_email: value.user_email
+                                });
+                            }
+                        });
+                    }
+                });
+                if (check) {
+                    IdxData.forEach(async (value, key) => {
+                        var formDataXD = new FormData();
+                        formDataXD.append('user_id', value.user_id);
+                        formDataXD.append('status', 'deleteUser');
+                        try {
+                            var res = await fetch('../../rest/rest.php', {
+                                method: 'POST',
+                                body: formDataXD
+                            });
+                            if (res.ok) {
+                                var data = await res.json();
+                                if (data.status != 'success') {
+                                    checkx = false;
+                                } else {
+                                    tableItemX.row(value.index).remove().draw();
+                                    var TableData = tableItemX.data();
+                                    TableData.each(function(valuex, index) {
+                                        if (key < IdxData.length - 1) {
+                                            if (valuex[3] == IdxData[key + 1].user_email) {
+                                                IdxData[key + 1].index = index;
+                                            }
+                                        }
+                                        var matches = valuex[5].match(/editData\('(\d+)','(.*?)','(\d+)',(\d+)\)/);
+                                        tableItemX.cell(index, 1).data(index + 1).draw();
+                                        tableItemX.cell(index, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${matches[1]}','${matches[2]}','${matches[3]}',${index})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                        tableItemX.cell(index, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${matches[1]}',${index})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    });
+                                }
+                            }
+                            await sleep(1500);
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    });
+                    if (checkx) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: "ลบข้อมูลสำเร็จ",
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: "ลบข้อมูลไม่สำเร็จ",
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "กรุณาเลือกข้อมูล",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            }
+        })
+    });
+
+    BtnSaveEditSelect.addEventListener('click', async (e) => {
+        console.log(IdxData);
+        var inputemail = document.querySelectorAll("#email");
+        var inputstatus = document.querySelectorAll("#status");
+        var img = document.querySelectorAll("#images");
+        // console.log(inputemail);
+        // console.log(inputstatus);
+        // console.log(img);
+        var check = true;
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (checkinput(inputemail)) {
+            for ([key, value] of IdxData.entries()) {
+                console.log(value);
+                if (emailRegex.test(inputemail[key].value)) {
+                    var formDataXD = new FormData();
+                    formDataXD.append('user_id', value.user_id);
+                    formDataXD.append('user_email', inputemail[key].value);
+                    formDataXD.append('user_status', inputstatus[key].value);
+                    formDataXD.append('status', 'updateUser');
+                    formDataXD.append('user_image_data', img[key].files[0]);
+                    formDataXD.append('old_email', value.user_email);
+                    try {
+                        var res = await fetch('../../rest/rest.php', {
+                            method: 'POST',
+                            body: formDataXD
+                        });
+                        if (res.ok) {
+                            var data = await res.json();
+                            if (data.status == 'success') {
+                                var divCardX = document.querySelectorAll("#divcard");
+                                divCardX[key].classList.add("border-green-500");
+                            } else {
+                                check = false;
+                                var divCardX = document.querySelectorAll("#divcard");
+                                divCardX[key].classList.add("border-red-500");
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
+                        }
+                        await sleep(1500);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "กรุณากรอกอีเมลให้ถูกต้อง",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    return false;
+                }
+            }
+        }
+        if (check) {
+            Swal.fire({
+                icon: 'success',
+                title: "บันทึกข้อมูลสำเร็จ",
+                showConfirmButton: false,
+                timer: 1500
+            })
+            modal.classList.remove("modal-open");
+            // console.log(img[0].files[0]);
+            for ([key, value] of IdxData.entries()) {
+                if (img[key].files[0] != undefined) {
+                    tableItemX.cell(value.index, 2).data(`<div class=" flex justify-center"><img src="${URL.createObjectURL(img[key].files[0])}" class="w-14 h-14 rounded-full object-cover"></div>`).draw();
+                }
+                tableItemX.cell(value.index, 3).data(inputemail[key].value).draw();
+                tableItemX.cell(value.index, 4).data(`<span class="bg-gradient-to-tl w-full ${inputstatus[key].value == 1 ? 'from-green-600 to-lime-400' : 'from-red-600 to-pink-400'} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">${inputstatus[key].value == 1 ? 'แอดมิน' : 'ผู้ใช้'}</span>`).draw();
+            }
+        }
+    })
+
+    async function toBase64(file) {
+        var base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error)
+        });
+        return base64;
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    BtnSelectEdit.addEventListener("click", async function() {
+        document.getElementById("btnsaveedit").hidden = true;
+        document.getElementById("btnsaveeditData").hidden = true;
+        document.getElementById("BtnSaveEditSelect").hidden = false;
+        IdxData = [];
+        var checkbox = document.querySelectorAll(".checkbox");
+        var check = false;
+        var UserData = await getUserJS();
+        // console.log(UserData);
+        var modalcon = document.querySelector(".modal-con");
+        var modaltitle = document.getElementById("modal-title");
+        modaltitle.innerHTML = "แก้ไขข้อมูลผู้ใช้";
+        modalcon.innerHTML = '';
+        var divflex = document.createElement("div");
+        divflex.classList.add("w-full", "flex", "flex-col", "gap-3");
+        var count = 0;
+        checkbox.forEach((e, index) => {
+            if (e.checked) {
+                UserData.forEach((value, key) => {
+                    if (index == key) {
+                        check = true;
+                        console.log(index);
+                        IdxData.push({
+                            index: index,
+                            user_id: value.user_id,
+                            user_email: value.user_email
+                        });
+                        var divcard = createModal(value.user_image_data, count, modalcon, value.user_email, value.user_status, true);
+                        divflex.appendChild(divcard);
+                        count++;
+                    }
+                });
+            }
+        });
+        if (check) {
+            modalcon.appendChild(divflex);
+            modal.classList.add("modal-open");
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: "กรุณาเลือกข้อมูล",
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }
+    });
+
+    async function getUserJS() {
+        FormDataUser = new FormData();
+        FormDataUser.append('status', 'getUserData');
+        FormDataUser.append('user_id', <?php echo $_SESSION['user_id'] ?>);
+        try {
+            var res = await fetch('../../rest/rest.php', {
+                method: 'POST',
+                body: FormDataUser
+            });
+            if (res.ok) {
+                var data = await res.json();
+                return data.data;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     function addData() {
         modal.classList.add("modal-open");
@@ -218,6 +564,7 @@ sort($DescUserData);
         document.getElementById("email").value = '';
         document.getElementById("status").value = 1;
         document.getElementById("btnsaveedit").hidden = true;
+        document.getElementById("BtnSaveEditSelect").hidden = true;
         btnsaveeditData.hidden = false;
         var modalcon = document.querySelector(".modal-con");
         modalcon.innerHTML = `<div class=" w-full flex flex-col gap-3">
@@ -286,9 +633,9 @@ sort($DescUserData);
                                     if (result.dismiss === Swal.DismissReason.timer) {
                                         var fileimage = URL.createObjectURL(img.files[0]);
                                         var colors = '';
-                                        if(inputstatus.value == 1){
+                                        if (inputstatus.value == 1) {
                                             colors = 'from-green-600 to-lime-400'
-                                        }else{
+                                        } else {
                                             colors = 'from-red-600 to-pink-400'
                                         }
                                         console.log(tableItemX.data());
@@ -298,6 +645,7 @@ sort($DescUserData);
                                             `<div class=" flex justify-center"><img src="${fileimage}" class="w-14 h-14 rounded-full object-cover"></div>`,
                                             inputemail.value,
                                             `<span class="bg-gradient-to-tl w-full ${colors} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">${inputstatus.value == 1 ? 'แอดมิน' : 'ผู้ใช้'}</span>`,
+                                            `<button id="viewmarket" onclick="viewMarket(${data.user_id})"  class="py-3 px-4 duration-150 hover:bg-teal-600 text-white font-semibold bg-teal-500 rounded-lg"><i class="fa-solid fa-store"></i></button>`,
                                             `<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${data.user_id}','${inputemail.value}','${inputstatus.value}',${tableItemX.data().length})"><i class="fa-regular fa-pen-to-square"></i></button>`,
                                             `<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${data.user_id}',${tableItemX.data().length})"><i class="fa-solid fa-trash"></i></button>`
                                         ]).draw();
@@ -412,10 +760,10 @@ sort($DescUserData);
                                     tableItemX.row(idx).remove().draw();
                                     var TableData = tableItemX.data();
                                     TableData.each(function(value, index) {
-                                        var matches = value[5].match(/editData\('(\d+)','(.*?)','(\d+)',(\d+)\)/);
+                                        var matches = value[6].match(/editData\('(\d+)','(.*?)','(\d+)',(\d+)\)/);
                                         tableItemX.cell(index, 1).data(index + 1).draw();
-                                        tableItemX.cell(index, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${matches[1]}','${matches[2]}','${matches[3]}',${index})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
-                                        tableItemX.cell(index, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${matches[1]}',${index})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                        tableItemX.cell(index, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${matches[1]}','${matches[2]}','${matches[3]}',${index})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                        tableItemX.cell(index, 7).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${matches[1]}',${index})"><i class="fa-solid fa-trash"></i></button>`).draw();
                                     });
                                 }
                             })
@@ -487,8 +835,8 @@ sort($DescUserData);
                                     } else {
                                         tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>`).draw();
                                     }
-                                    tableItemX.cell(tableIdx, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
-                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 7).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
                                     modal.classList.remove("modal-open");
                                 } else {
                                     tableItemX.cell(tableIdx, 3).data(email).draw();
@@ -497,8 +845,8 @@ sort($DescUserData);
                                     } else {
                                         tableItemX.cell(tableIdx, 4).data(`<span class="bg-gradient-to-tl w-full from-red-600 to-pink-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">ผู้ใช้</span>`).draw();
                                     }
-                                    tableItemX.cell(tableIdx, 5).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
-                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 6).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-yellow-600 text-white font-semibold bg-yellow-500 rounded-lg" onclick="editData('${user_id}','${email}','${status}',${tableIdx})"><i class="fa-regular fa-pen-to-square"></i></button>`).draw();
+                                    tableItemX.cell(tableIdx, 7).data(`<button type="button" class="py-3 px-4 duration-150 hover:bg-red-600 text-white font-semibold bg-red-500 rounded-lg" onclick="deleteData('${user_id}',${tableIdx})"><i class="fa-solid fa-trash"></i></button>`).draw();
                                     modal.classList.remove("modal-open");
                                 }
                             }
@@ -542,6 +890,9 @@ sort($DescUserData);
     });
 
     async function editData(user_id, user_email, user_status, idx) {
+        document.getElementById("btnsaveedit").hidden = false;
+        document.getElementById("btnsaveeditData").hidden = true;
+        document.getElementById("BtnSaveEditSelect").hidden = true;
         email_user = user_email;
         tableIdx = idx;
         user_idActive = user_id;
@@ -559,9 +910,10 @@ sort($DescUserData);
         modalcon.appendChild(divflex);
     }
 
-    function createModal(ImageX, idx, modalcon, user_email, user_status) {
+    function createModal(ImageX, idx, modalcon, user_email, user_status, checkx = false) {
         var divcard = document.createElement("div");
         divcard.classList.add("w-full", "h-auto", "rounded-md", "border", "p-3", "flex", "flex-col", "justify-center", "items-center", "sm:flex-row", "gap-3");
+        divcard.setAttribute("id", "divcard");
         var divimg = document.createElement("div");
         divimg.classList.add("w-20", "h-20", "border-[3px]", "border-gray-400", "rounded-full", "flex-shrink-0", "border-dashed");
         var divimg2 = document.createElement("div");
@@ -571,7 +923,11 @@ sort($DescUserData);
         inputimg.setAttribute("type", "file");
         inputimg.setAttribute("id", "images");
         inputimg.setAttribute("name", "images");
-        inputimg.setAttribute('onchange', `readURL(this)`);
+        if (checkx) {
+            inputimg.setAttribute("onchange", `readURL(this,true,${idx})`);
+        } else {
+            inputimg.setAttribute("onchange", `readURL(this)`);
+        }
         inputimg.setAttribute("accept", "image/*");
         var img = document.createElement("img");
         img.classList.add("z-0", "w-full", "h-full", "absolute", "rounded-full", "object-cover");
@@ -628,14 +984,27 @@ sort($DescUserData);
         return divcard;
     }
 
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            var img = document.getElementById("img");
-            reader.onload = function(e) {
-                img.setAttribute("src", e.target.result);
-            };
-            reader.readAsDataURL(input.files[0]);
+    function readURL(input, ischeck = false, idx) {
+        if (ischeck) {
+            console.log(input.files[0], idx);
+            var images = document.querySelectorAll("input[name='images']");
+            var img = document.querySelectorAll("#img");
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    img[idx].setAttribute("src", e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        } else {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                var img = document.getElementById("img");
+                reader.onload = function(e) {
+                    img.setAttribute("src", e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
     }
 

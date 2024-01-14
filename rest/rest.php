@@ -156,8 +156,50 @@ if (isset($_POST['status'])) {
       $user_image_data = null;
     }
     echo $user->update_user($user_id, $user_email, $old_email, $user_status, $user_image_data);
-  }elseif ($_POST['status'] == 'deleteUser') {
+  } elseif ($_POST['status'] == 'deleteUser') {
     $user_id = $_POST['user_id'];
     echo $user->delete_user($user_id);
+  } elseif ($_POST['status'] == 'getUserData') {
+    $user_id = $_POST['user_id'];
+    $user_data = $user->getUser();
+    $newData = [];
+    $count = 0;
+    foreach ($user_data as $key => $value) {
+      if ($user_id != $value['user_id'] && $value['user_email'] != "admin@gmail.com") {
+        $newData[$count]['user_id'] = $value['user_id'];
+        $newData[$count]['user_email'] = $value['user_email'];
+        $newData[$count]['user_status'] = $value['user_status'];
+        $newData[$count]['user_image_data'] = base64_encode($value['user_image_data']);
+        $count++;
+      }
+    }
+    echo json_encode(['status' => 'success', 'data' => $newData]);
+  } elseif ($_POST['status'] == 'updateImage') {
+    $user_id = $_POST['user_id'];
+    $user_image_data;
+    if (isset($_FILES['user_image_data'])) {
+      if ($_FILES['user_image_data']['size'] < 1048576 * 4) {
+        $user_image_data = addslashes(file_get_contents($_FILES['user_image_data']['tmp_name']));
+      } else {
+        echo json_encode(['status' => 'error', 'msg' => 'ขนาดไฟล์ใหญ่เกินไป']);
+      }
+    }
+    echo $user->update_image_userById($user_id, $user_image_data);
+  } elseif ($_POST['status'] == 'updateEmail') {
+    $user_id = $_POST['user_id'];
+    $user_email = $_POST['user_email'];
+    $old_email = $_POST['old_email'];
+    echo $user->update_email($user_id, $user_email, $old_email);
+  }elseif ($_POST['status'] == 'checkPassword') {
+    $user_id = $_POST['user_id'];
+    $user_password = md5($_POST['user_password']);
+    echo $user->check_password($user_id, $user_password);
+  }elseif ($_POST['status'] == 'updatePassword') {
+    $user_id = $_POST['user_id'];
+    $user_password = md5($_POST['user_password']);
+    echo $user->update_password($user_id, $user_password);
+  }elseif ($_POST['status'] == 'getMarketData') {
+    $user_id = $_POST['user_id'];
+    echo json_encode(['status' => 'success', 'data' => $area->get_book_userById($user_id)]);
   }
 }

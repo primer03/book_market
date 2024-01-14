@@ -213,7 +213,7 @@ class AreaModel
 
     public function count_book_item()
     {
-        $sql = "SELECT * FROM area_item WHERE item_active = 1";
+        $sql = "SELECT * FROM area_item WHERE item_active != 0";
         $stmt = $this->db->connect()->prepare($sql);
         $stmt->execute();
         return $stmt->rowCount();
@@ -489,11 +489,11 @@ class AreaModel
         }
     }
 
-    public function updateBookItemById($b_id,$b_shop_name,$b_firstname,$b_lastname,$b_email,$b_phone)
+    public function updateBookItemById($b_id, $b_shop_name, $b_firstname, $b_lastname, $b_email, $b_phone)
     {
         $sql = "UPDATE book_area SET b_shop_name = ?, b_firstname = ?, b_lastname = ?, b_email = ?, b_phone = ? WHERE b_id = ?";
         $stmt = $this->db->connect()->prepare($sql);
-        $stmt->execute([$b_shop_name,$b_firstname,$b_lastname,$b_email,$b_phone,$b_id]);
+        $stmt->execute([$b_shop_name, $b_firstname, $b_lastname, $b_email, $b_phone, $b_id]);
         if ($stmt) {
             return json_encode(["status" => "success", "msg" => "success"]);
         } else {
@@ -525,11 +525,11 @@ class AreaModel
         }
     }
 
-    public function insert_receipt($r_id,$r_book_id, $r_month, $r_total)
+    public function insert_receipt($r_id, $r_book_id, $r_month, $r_total)
     {
         $sql = "INSERT INTO receipt (r_id,r_book_id, r_month, r_total) VALUES (?,?,?,?)";
         $stmt = $this->db->connect()->prepare($sql);
-        $stmt->execute([$r_id,$r_book_id, $r_month, $r_total]);
+        $stmt->execute([$r_id, $r_book_id, $r_month, $r_total]);
         if ($stmt) {
             return json_encode(["status" => "success", "msg" => "success"]);
         } else {
@@ -543,17 +543,67 @@ class AreaModel
         $stmt = $this->db->connect()->prepare($sql);
         $stmt->execute([$id]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if($result != null){
+        if ($result != null) {
             return $result[0];
-        }else{
+        } else {
             return null;
         }
     }
 
-    public function get_receiptAll(){
+    public function get_receiptAll()
+    {
         $sql = "SELECT * FROM receipt as r, book_area as ba, users as u, area_item as item, areas as area WHERE r.r_book_id = ba.b_id AND ba.b_user_id = u.user_id AND ba.b_item_id = item.item_id AND item.item_area_id = area.area_id ORDER BY r.r_month ASC";
         $stmt = $this->db->connect()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function get_areaItemByid($id)
+    {
+        $sql = "SELECT * FROM area_item WHERE item_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function get_book_userById($user_id)
+    {
+        $sql = "SELECT * FROM book_area as ba, users as u, area_item as item, areas as area WHERE ba.b_user_id = u.user_id AND ba.b_item_id = item.item_id AND item.item_area_id = area.area_id AND u.user_id = ? ORDER BY area.area_name ASC";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$user_id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $data = [];
+        if (count($result) != 0) {
+            $keyDat = array_keys($result[0]);
+            foreach ($result as $key => $value) {
+                foreach ($value as $keyx => $valuex) {
+                    if ($keyx != 'user_image_data') {
+                        $data[$key][$keyx] = $valuex;
+                    }
+                }
+            }
+            foreach ($data as $key => $value) {
+                $count = 0;
+                $dataItem = $this->get_areaItemByid($value['b_item_id']);
+                foreach ($dataItem as $keyx => $valuex) {
+                    if($value['b_item_id'] == $valuex['item_id']){
+                        break;
+                    }
+                    $count++;
+                }
+                $data[$key]['item_position'] = $count+1;
+            }
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function get_count_month($month, $year)
+    {
+        $sql = "SELECT * FROM receipt WHERE MONTH(r_month) = ? AND YEAR(r_month) = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$month, $year]);
+        return $stmt->rowCount();
     }
 }

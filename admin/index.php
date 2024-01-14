@@ -1,28 +1,35 @@
-<?php 
-    include_once "../Model/UserModel.php";
-    // echo $_SESSION['user_status'];
-    if(!isset($_COOKIE['login'])){
+<?php
+include_once "../Model/UserModel.php";
+// echo $_SESSION['user_status'];
+if (!isset($_COOKIE['login'])) {
+    header('location: ../index.php');
+} else {
+    $user = new UserModel();
+    $userdata = $user->get_cookie($_COOKIE['login']);
+    if ($userdata == 0) {
+        setcookie('login', '', time() - 3600, '/');
+        session_destroy();
         header('location: ../index.php');
-    }else{
-        $user = new UserModel();
-        $userdata = $user->get_cookie($_COOKIE['login']);
-        if(isset($_SESSION['user_status'])){
-            if($_SESSION['user_status'] == 0){
+    } else {
+        if (isset($_SESSION['user_status'])) {
+            if ($_SESSION['user_status'] == 0) {
                 header('location: ../index.php');
             }
         }
     }
+}
 $page = 'แดชบอร์ด';
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../dist/output.css">
     <link rel="apple-touch-icon" sizes="76x76" href="./assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="./assets/img/favicon.png" />
-    <title>Soft UI Dashboard Tailwind</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/gzvkzoJ.png" />
+    <title>ระบบจัดการพื้นที่ขาย</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />

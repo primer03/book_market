@@ -215,4 +215,59 @@ class UserModel
             return json_encode(["status" => "error", "msg" => "ลบข้อมูลไม่สำเร็จ"]);
         }
     }
+
+    public function update_image_userById($user_id, $user_image_data)
+    {
+        $sql = "UPDATE users SET user_image_data = '$user_image_data' WHERE user_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$user_id]);
+        if ($stmt) {
+            return json_encode(["status" => "success", "msg" => "อัพเดทข้อมูลเรียบร้อยแล้ว"]);
+        } else {
+            return json_encode(["status" => "error", "msg" => "อัพเดทข้อมูลไม่สำเร็จ"]);
+        }
+    }
+
+    public function update_email($user_id, $user_email, $old_email)
+    {
+        if ($this->check_uniq_email($old_email, $user_email) == 0) {
+            $sql = "UPDATE users SET user_email = '$user_email' WHERE user_id = ?";
+            $stmt = $this->db->connect()->prepare($sql);
+            $stmt->execute([$user_id]);
+            if ($stmt) {
+                setcookie('login', '', time() - 3600, '/');
+                session_destroy();
+                return json_encode(["status" => "success", "msg" => "อัพเดทข้อมูลเรียบร้อยแล้ว"]);
+            } else {
+                return json_encode(["status" => "error", "msg" => "อัพเดทข้อมูลไม่สำเร็จ"]);
+            }
+        } else {
+            return json_encode(["status" => "error", "msg" => "อีเมลนี้มีผู้ใช้งานแล้ว"]);
+        }
+    }
+
+    public function check_password($user_id, $user_password)
+    {
+        $sql = "SELECT * FROM users WHERE user_id = ? AND user_password = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$user_id, $user_password]);
+        $count = $stmt->rowCount();
+        if ($count > 0) {
+            return json_encode(["status" => "success", "msg" => "รหัสผ่านถูกต้อง"]);
+        } else {
+            return json_encode(["status" => "error", "msg" => "รหัสผ่านไม่ถูกต้อง"]);
+        }
+    }
+
+    public function update_password($user_id, $user_password)
+    {
+        $sql = "UPDATE users SET user_password = '$user_password' WHERE user_id = ?";
+        $stmt = $this->db->connect()->prepare($sql);
+        $stmt->execute([$user_id]);
+        if ($stmt) {
+            return json_encode(["status" => "success", "msg" => "อัพเดทข้อมูลเรียบร้อยแล้ว"]);
+        } else {
+            return json_encode(["status" => "error", "msg" => "อัพเดทข้อมูลไม่สำเร็จ"]);
+        }
+    }    
 }

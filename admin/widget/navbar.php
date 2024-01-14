@@ -18,7 +18,7 @@
                     <?php
                     $usernamex = explode('@', $_SESSION['user_email']); 
                     ?>
-                    <img class=" shadow-md border-2 border-violet-600 w-11 h-11 rounded-full object-cover" src="data:image/jpeg;base64,<?php echo base64_encode($_SESSION['user_image_data']) ?>" alt="">
+                    <img id="imageLogo" class=" shadow-md border-2 border-violet-600 w-11 h-11 rounded-full object-cover" src="data:image/jpeg;base64,<?php echo base64_encode($_SESSION['user_image_data']) ?>" alt="">
                     <!-- <p class=" font-bold text-xl"><?php echo $usernamex[0] ?></p> -->
                     <!-- <a href="./pages/sign-in.html" class="block px-0 py-2 text-sm font-semibold transition-all ease-nav-brand text-slate-500">
                         <i class="fa fa-user sm:mr-1"></i>

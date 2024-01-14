@@ -7,9 +7,15 @@ if (!isset($_COOKIE['login'])) {
 } else {
     $user = new UserModel();
     $userdata = $user->get_cookie($_COOKIE['login']);
-    if (isset($_SESSION['user_status'])) {
-        if ($_SESSION['user_status'] == 0) {
-            header('location: ../index.php');
+    if ($userdata == 0) {
+        setcookie('login', '', time() - 3600, '/');
+        session_destroy();
+        header('location: ../index.php');
+    } else {
+        if (isset($_SESSION['user_status'])) {
+            if ($_SESSION['user_status'] == 0) {
+                header('location: ../index.php');
+            }
         }
     }
 }
@@ -26,8 +32,8 @@ $page = 'ประวัติการชำระ'
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../dist/output.css">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Soft UI Dashboard Tailwind</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/gzvkzoJ.png" />
+    <title>ระบบจัดการพื้นที่ขาย</title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->
